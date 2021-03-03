@@ -2,11 +2,13 @@ defmodule Qwixx.Scorecard do
   alias Qwixx.ScorecardRow, as: Row
 
   @colors ~w(red yellow blue green)a
+  @pass_score -5
 
   defstruct red: Row.new(:red),
             yellow: Row.new(:yellow),
             blue: Row.new(:blue),
-            green: Row.new(:green)
+            green: Row.new(:green),
+            pass: 0
 
   def mark(%__MODULE__{} = scorecard, color, num) when color in @colors do
     row = Map.get(scorecard, color)
@@ -19,12 +21,15 @@ defmodule Qwixx.Scorecard do
   end
 
   def score(%__MODULE__{} = scorecard) do
-    scores =
+    row_scores =
       scorecard
       |> Map.from_struct()
+      |> Map.take(@colors)
       |> Enum.map(fn {color, row} -> {color, Row.score(row)} end)
 
-    total = Enum.reduce(scores, 0, fn {_, score}, sum -> sum + score end)
-    %{rows: Map.new(scores), total: total}
+    pass_total = scorecard.pass * @pass_score
+
+    row_total = Enum.reduce(row_scores, 0, fn {_, score}, sum -> sum + score end)
+    %{rows: Map.new(row_scores), total: row_total + pass_total}
   end
 end

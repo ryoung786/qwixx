@@ -14,23 +14,38 @@ defmodule Qwixx.ScorecardTest do
   describe "score" do
     test "total" do
       card =
-        card(%{
+        card_helper(%{
           red: [2, 3, 4, 8],
           yellow: [3, 9, 11],
           blue: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2],
-          green: []
+          green: [],
+          pass: 0
         })
 
       assert Card.score(card).total == 94
     end
+
+    test "with passes" do
+      card =
+        card_helper(%{
+          red: [2, 3, 4, 8],
+          yellow: [3, 9, 11],
+          blue: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2],
+          green: [],
+          pass: 2
+        })
+
+      assert Card.score(card).total == 84
+    end
   end
 
-  defp card(%{red: red, yellow: yellow, blue: blue, green: green}) do
+  defp card_helper(%{red: red, yellow: yellow, blue: blue, green: green, pass: pass}) do
     %Card{
       red: mark(%Card{}.red, red),
       yellow: mark(%Card{}.yellow, yellow),
       blue: mark(%Card{}.blue, blue),
-      green: mark(%Card{}.green, green)
+      green: mark(%Card{}.green, green),
+      pass: pass
     }
   end
 
