@@ -61,12 +61,12 @@ defmodule Qwixx.ScorecardRowTest do
 
   describe "mark" do
     test "red locks after 12" do
-      row = Row.new(:red) |> Row.mark!(5) |> Row.mark!(6) |> Row.mark!(7) |> Row.mark!(9)
+      row = Row.new(:red) |> mark([5, 6, 7, 9])
       assert {:ok, %{locked: true}} = Row.mark(row, 12)
     end
 
     test "blue locks after 2" do
-      row = Row.new(:blue) |> Row.mark!(12) |> Row.mark!(10) |> Row.mark!(9) |> Row.mark!(3)
+      row = Row.new(:blue) |> mark([12, 10, 9, 3])
       assert {:ok, %{locked: true}} = Row.mark(row, 2)
     end
   end
@@ -75,8 +75,25 @@ defmodule Qwixx.ScorecardRowTest do
     test "multiple" do
       row = Row.new(:red)
       assert row |> Row.count_checks() == 0
-      row = Row.mark!(row, 2) |> Row.mark!(3) |> Row.mark!(4) |> Row.mark!(5)
-      assert row |> Row.count_checks() == 4
+      assert row |> mark([2, 3, 4, 5]) |> Row.count_checks() == 4
     end
+  end
+
+  describe "score" do
+    test "lock bonus" do
+      row = Row.new(:red)
+      assert Row.score(row) == 0
+      row = mark(row, [3, 4, 7, 8])
+      assert Row.score(row) == 10
+      row = mark(row, [9, 11])
+      assert Row.score(row) == 21
+      assert row |> Row.mark!(12) |> Row.score() == 36
+    end
+  end
+
+  defp mark(row, arr) when is_list(arr) do
+    Enum.reduce(arr, row, fn num, row ->
+      Row.mark!(row, num)
+    end)
   end
 end

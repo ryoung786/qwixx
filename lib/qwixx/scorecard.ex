@@ -1,6 +1,6 @@
 defmodule Qwixx.Scorecard do
   alias Qwixx.ScorecardRow, as: Row
-  # @num_status ~w(open yes no)
+
   @colors ~w(red yellow blue green)a
 
   defstruct red: Row.new(:red),
@@ -16,5 +16,15 @@ defmodule Qwixx.Scorecard do
     else
       {:error, reasons} -> {:error, reasons}
     end
+  end
+
+  def score(%__MODULE__{} = scorecard) do
+    scores =
+      scorecard
+      |> Map.from_struct()
+      |> Enum.map(fn {color, row} -> {color, Row.score(row)} end)
+
+    total = Enum.reduce(scores, 0, fn {_, score}, sum -> sum + score end)
+    %{rows: Map.new(scores), total: total}
   end
 end

@@ -1,16 +1,24 @@
 defmodule Qwixx.ScorecardRow do
-  defstruct values: [], locked: false, lock_num: -1
+  defstruct values: [], locked: false
+
+  @scores [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78]
 
   def new(color) when color in [:red, :yellow], do: new_row(2..12)
   def new(color) when color in [:blue, :green], do: new_row(12..2)
 
-  defp new_row(_low..high = range) do
+  defp new_row(range) do
     values = for x <- range, do: %{val: x, status: :open}
-    %__MODULE__{locked: false, values: values, lock_num: high}
+    %__MODULE__{locked: false, values: values}
   end
 
   def count_checks(%__MODULE__{} = row),
     do: Enum.count(row.values, fn %{status: status} -> status == :yes end)
+
+  def score(%__MODULE__{values: values} = row) do
+    lock_bonus = if List.last(values).status == :yes, do: 1, else: 0
+    checks = count_checks(row) + lock_bonus
+    Enum.at(@scores, checks)
+  end
 
   def lock(%__MODULE__{} = row), do: %{row | locked: true}
 
@@ -64,6 +72,8 @@ defmodule Qwixx.ScorecardRow do
       Enum.find(values, fn %{val: v, status: status} -> v == num and status == :open end)
   end
 
-  defp enough_to_lock(%__MODULE__{} = row, num),
-    do: num == row.lock_num and count_checks(row) < 4
+  defp enough_to_lock(%__MODULE__{values: values} = row, num) do
+    lock_num = List.last(values) |> Map.get(:val)
+    num == lock_num and count_checks(row) < 4
+  end
 end
