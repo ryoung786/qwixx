@@ -32,4 +32,6 @@ defmodule Qwixx.Scorecard do
     row_total = Enum.reduce(row_scores, 0, fn {_, score}, sum -> sum + score end)
     %{rows: Map.new(row_scores), total: row_total + pass_total}
   end
+
+  def rows(%__MODULE__{} = scorecard), do: Map.take(scorecard, @colors)
 end
