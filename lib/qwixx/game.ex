@@ -1,7 +1,7 @@
 defmodule Qwixx.Game do
   alias Qwixx.Scorecard
 
-  defstruct players: []
+  defstruct players: [], player_turn: nil
 
   def add_player(%__MODULE__{} = game, name) do
     player = %{name: name, scorecard: %Scorecard{}}

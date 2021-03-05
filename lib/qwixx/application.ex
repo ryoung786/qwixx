@@ -11,6 +11,8 @@ defmodule Qwixx.Application do
       QwixxWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Qwixx.PubSub},
+      {Registry, keys: :unique, name: Qwixx.GameRegistry},
+      Qwixx.GameSupervisor,
       # Start the Endpoint (http/https)
       QwixxWeb.Endpoint
       # Start a worker by calling: Qwixx.Worker.start_link(arg)
