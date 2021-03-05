@@ -7,16 +7,11 @@ defmodule Qwixx.Application do
 
   def start(_type, _args) do
     children = [
-      # Start the Telemetry supervisor
       QwixxWeb.Telemetry,
-      # Start the PubSub system
       {Phoenix.PubSub, name: Qwixx.PubSub},
       {Registry, keys: :unique, name: Qwixx.GameRegistry},
-      Qwixx.GameSupervisor,
-      # Start the Endpoint (http/https)
+      {DynamicSupervisor, name: Qwixx.GameSupervisor, strategy: :one_for_one},
       QwixxWeb.Endpoint
-      # Start a worker by calling: Qwixx.Worker.start_link(arg)
-      # {Qwixx.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

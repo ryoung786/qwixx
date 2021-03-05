@@ -5,6 +5,20 @@ defmodule Qwixx.GameServer do
 
   def start_link(code), do: GenServer.start_link(__MODULE__, code, name: via_tuple(code))
 
+  def new_game_server(code) do
+    DynamicSupervisor.start_child(Qwixx.GameSupervisor, {__MODULE__, code})
+  end
+
+  def delete_game_server(code) do
+    case game_pid(code) do
+      pid when is_pid(pid) ->
+        DynamicSupervisor.terminate_child(Qwixx.GameSupervisor, pid)
+
+      nil ->
+        :ok
+    end
+  end
+
   def pop(code) do
     GenServer.call(game_pid(code), :pop)
   end
