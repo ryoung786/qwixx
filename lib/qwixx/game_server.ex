@@ -19,8 +19,14 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  def pop(code) do
-    GenServer.call(game_pid(code), :pop)
+  def add_player(code, name), do: call(code, {:add_player, name})
+
+  ## Server
+
+  @impl true
+  def handle_call({:add_player, name}, _from, %Game{} = game) do
+    game = Game.add_player(game, name)
+    {:reply, {:ok, game.players}, game}
   end
 
   ## Callbacks
@@ -28,10 +34,24 @@ defmodule Qwixx.GameServer do
   @impl true
   def init(_code), do: {:ok, %{game: %Game{}}}
 
-  def game_pid(code) do
+  defp game_pid(code) do
     code
     |> via_tuple()
     |> GenServer.whereis()
+  end
+
+  defp call(code, command) do
+    case game_pid(code) do
+      pid when is_pid(pid) -> GenServer.call(pid, command)
+      nil -> {:error, :game_not_found}
+    end
+  end
+
+  defp cast(code, command) do
+    case game_pid(code) do
+      pid when is_pid(pid) -> GenServer.cast(pid, command)
+      nil -> {:error, :game_not_found}
+    end
   end
 
   defp via_tuple(code), do: {:via, Registry, {Qwixx.GameRegistry, code}}
