@@ -18,12 +18,11 @@ defmodule QwixxWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
-  end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", QwixxWeb do
-  #   pipe_through :api
-  # end
+    get "/session/join", SessionController, :join
+    get "/session/leave", SessionController, :leave
+    live "/game/:code", GameLive, :index
+  end
 
   # Enables LiveDashboard only for development
   #
