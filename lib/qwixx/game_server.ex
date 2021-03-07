@@ -5,7 +5,16 @@ defmodule Qwixx.GameServer do
 
   def start_link(code), do: GenServer.start_link(__MODULE__, code, name: via_tuple(code))
 
-  def new_game_server(code) do
+  def new_game_server() do
+    code = generate_code()
+
+    case code |> new_game_server() do
+      {:ok, _pid} -> code
+      {:error, {:already_started, _}} -> new_game_server()
+    end
+  end
+
+  defp new_game_server(code) do
     DynamicSupervisor.start_child(Qwixx.GameSupervisor, {__MODULE__, code})
   end
 
@@ -97,6 +106,14 @@ defmodule Qwixx.GameServer do
   #     nil -> {:error, :game_not_found}
   #   end
   # end
+
+  defp generate_code() do
+    "ABCDEFGHJKMNPQRSTUVWXYZ"
+    |> String.graphemes()
+    |> Enum.shuffle()
+    |> Enum.take(4)
+    |> Enum.join()
+  end
 
   defp via_tuple(code), do: {:via, Registry, {Qwixx.GameRegistry, code}}
 end
