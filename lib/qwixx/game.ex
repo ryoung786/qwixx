@@ -12,12 +12,14 @@ defmodule Qwixx.Game do
 
   def add_player(%Game{} = game, name) do
     players = Map.put(game.players, name, %Player{name: name})
-    %{game | players: players} |> shuffle_player_order()
+    added_to_end = game.turn_order ++ [name]
+    %{game | players: players, turn_order: added_to_end}
   end
 
   def remove_player(%Game{} = game, name) do
     players = Map.delete(game.players, name)
-    %{game | players: players} |> shuffle_player_order()
+    removed = List.delete(game.turn_order, name)
+    %{game | players: players, turn_order: removed}
   end
 
   def start(%Game{players: players} = game) when map_size(players) > 0 do
