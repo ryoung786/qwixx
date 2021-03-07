@@ -10,6 +10,6 @@ defmodule Qwixx.Dice do
   def roll(%Game{} = game) do
     locked_colors = Game.locked_colors(game)
 
-    %Dice{} |> Map.drop(locked_colors) |> IO.inspect(label: "[dice] ")
+    %Dice{} |> Map.drop(locked_colors)
   end
 end
