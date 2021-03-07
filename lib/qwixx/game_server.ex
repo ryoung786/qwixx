@@ -20,6 +20,11 @@ defmodule Qwixx.GameServer do
   end
 
   def add_player(code, name), do: call(code, {:add_player, name})
+  def remove_player(code, name), do: call(code, {:remove_player, name})
+  def start_game(code), do: call(code, {:start_game})
+  def mark(code, name, color, num), do: call(code, {:mark, name, color, num})
+  def pass(code, name), do: call(code, {:pass, name})
+  def get_game(code), do: call(code, {:get_game})
 
   ## Server
 
@@ -29,12 +34,51 @@ defmodule Qwixx.GameServer do
     {:reply, {:ok, game.players}, game}
   end
 
+  @impl true
+  def handle_call({:remove_player, name}, _from, %Game{} = game) do
+    game = Game.remove_player(game, name)
+    {:reply, {:ok, game.players}, game}
+  end
+
+  @impl true
+  def handle_call({:start_game}, _from, %Game{} = game) do
+    game = Game.start(game)
+    {:reply, {:ok, game}, game}
+  end
+
+  @impl true
+  def handle_call({:mark, name, color, num}, _from, %Game{} = game) do
+    case Game.mark(game, name, color, num) do
+      {:ok, game} -> {:reply, {:ok, game}, game}
+      {:error, msg} -> {:reply, {:error, msg}, game}
+    end
+  end
+
+  @impl true
+  def handle_call({:pass, name}, _from, %Game{} = game) do
+    case Game.pass(game, name) do
+      {:ok, game} -> {:reply, {:ok, game}, game}
+      {:error, msg} -> {:reply, {:error, msg}, game}
+    end
+  end
+
+  @impl true
+  def handle_call({:get_game}, _from, %Game{} = game) do
+    {:reply, game, game}
+  end
+
+  @impl true
+  def handle_call(catchall, _from, %Game{} = game) do
+    IO.inspect(catchall, label: "[catchall] ")
+    {:reply, game, game}
+  end
+
   ## Callbacks
 
   @impl true
-  def init(_code), do: {:ok, %{game: %Game{}}}
+  def init(_code), do: {:ok, %Game{}}
 
-  defp game_pid(code) do
+  def game_pid(code) do
     code
     |> via_tuple()
     |> GenServer.whereis()
@@ -47,12 +91,12 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  defp cast(code, command) do
-    case game_pid(code) do
-      pid when is_pid(pid) -> GenServer.cast(pid, command)
-      nil -> {:error, :game_not_found}
-    end
-  end
+  # defp cast(code, command) do
+  #   case game_pid(code) do
+  #     pid when is_pid(pid) -> GenServer.cast(pid, command)
+  #     nil -> {:error, :game_not_found}
+  #   end
+  # end
 
   defp via_tuple(code), do: {:via, Registry, {Qwixx.GameRegistry, code}}
 end
