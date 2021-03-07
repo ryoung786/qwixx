@@ -6,7 +6,7 @@ defmodule Qwixx.ScorecardTest do
 
   describe "mark" do
     test "red row" do
-      card = Card.mark(%Card{}, :red, 3) |> Card.mark(:red, 5)
+      card = Card.mark!(%Card{}, :red, 3) |> Card.mark!(:red, 5)
       assert Row.count_checks(card.red) == 2
     end
   end
@@ -19,7 +19,7 @@ defmodule Qwixx.ScorecardTest do
           yellow: [3, 9, 11],
           blue: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2],
           green: [],
-          pass: 0
+          pass_count: 0
         })
 
       assert Card.score(card).total == 94
@@ -32,20 +32,20 @@ defmodule Qwixx.ScorecardTest do
           yellow: [3, 9, 11],
           blue: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2],
           green: [],
-          pass: 2
+          pass_count: 2
         })
 
       assert Card.score(card).total == 84
     end
   end
 
-  defp card_helper(%{red: red, yellow: yellow, blue: blue, green: green, pass: pass}) do
+  defp card_helper(%{red: red, yellow: yellow, blue: blue, green: green, pass_count: pass}) do
     %Card{
       red: mark(%Card{}.red, red),
       yellow: mark(%Card{}.yellow, yellow),
       blue: mark(%Card{}.blue, blue),
       green: mark(%Card{}.green, green),
-      pass: pass
+      pass_count: pass
     }
   end
 
