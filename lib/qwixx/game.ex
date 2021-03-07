@@ -20,8 +20,6 @@ defmodule Qwixx.Game do
     %{game | players: players} |> shuffle_player_order()
   end
 
-  def restart_with_same_players(%Game{} = game), do: start(game)
-
   def start(%Game{players: players} = game) when map_size(players) > 0 do
     game
     |> Map.put(:status, :awaiting_start)

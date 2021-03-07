@@ -169,4 +169,19 @@ defmodule Qwixx.GameTest do
       assert game.status == :game_over
     end
   end
+
+  describe "dice get rolled" do
+    test "on new turn", %{game: game} do
+      # known bad values so we know they will change on roll
+      game = put_in(game.dice.red, {99, 99})
+      {:ok, game} = Game.pass(game, "a")
+      {:ok, game} = Game.pass(game, "b")
+
+      player = Game.active_player_name(game)
+      {:ok, game} = Game.pass(game, player)
+
+      assert game.status == :white
+      assert game.dice.red != {99, 99}
+    end
+  end
 end
