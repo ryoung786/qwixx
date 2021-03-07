@@ -30,19 +30,7 @@ defmodule Qwixx.Game do
     |> advance()
   end
 
-  defp roll(%Game{} = game) do
-    dice =
-      %{
-        red: {:rand.uniform(6), :rand.uniform(6)},
-        yellow: {:rand.uniform(6), :rand.uniform(6)},
-        blue: {:rand.uniform(6), :rand.uniform(6)},
-        green: {:rand.uniform(6), :rand.uniform(6)},
-        white: {:rand.uniform(6), :rand.uniform(6)}
-      }
-      |> Map.drop(locked_colors(game))
-
-    %{game | dice: dice}
-  end
+  defp roll(%Game{} = game), do: %{game | dice: Dice.roll(game)}
 
   def mark(%Game{} = game, player_name, color, num) do
     with %Player{} = player <- Map.get(game.players, player_name) do
