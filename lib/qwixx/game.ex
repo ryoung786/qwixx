@@ -1,5 +1,5 @@
 defmodule Qwixx.Game do
-  alias Qwixx.{Game, Scorecard, Player, Dice}
+  alias Qwixx.{Game, Scorecard, Player, Dice, Validation}
 
   defstruct players: %{},
             turn_order: [],
@@ -33,62 +33,37 @@ defmodule Qwixx.Game do
   defp roll(%Game{} = game), do: %{game | dice: Dice.roll(game)}
 
   def mark(%Game{} = game, player_name, color, num) do
-    with %Player{} = player <- Map.get(game.players, player_name) do
-      game
-      |> ensure_player_can_mark(player_name)
-      |> do_mark(player, color, num)
-      |> maybe_advance()
+    with {:ok, game} <- Validation.validate_mark(game, player_name, color, num),
+         player <- game.players[player_name],
+         {:ok, player} <- Player.mark(player, color, num) do
+      game = put_in(game.players[player.name], player)
+      game = put_in(game.turn_actions[player.name], {color, num})
+      {:ok, maybe_advance(game)}
     else
-      nil -> {:error, :player_does_not_exist}
+      {:error, msg} -> {:error, msg}
     end
   end
 
-  defp do_mark({:error, msg}, _player, _color, _num), do: {:error, msg}
-
-  defp do_mark({:ok, game}, player, color, num) do
-    case Player.mark(player, color, num) do
-      {:ok, player} ->
-        game = put_in(game.players[player.name], player)
-        game = put_in(game.turn_actions[player.name], {color, num})
-        {:ok, game}
-
-      {:error, msg} ->
-        {:error, msg}
-    end
-  end
-
-  defp maybe_advance({:error, msg}), do: {:error, msg}
-
-  defp maybe_advance({:ok, %Game{} = game}) do
+  defp maybe_advance(%Game{} = game) do
     everyone_has_made_choice =
       game.turn_actions
       |> Enum.all?(fn {_name, action} -> action != :awaiting_choice end)
 
-    game = if everyone_has_made_choice, do: advance(game), else: game
-    {:ok, game}
+    if everyone_has_made_choice, do: advance(game), else: game
   end
 
   defp advance(%Game{} = game) do
     game = game |> enforce_locks()
 
-    if game_over?(game) do
-      %{game | status: :game_over}
-    else
-      status =
-        case game.status do
-          :white -> :colors
-          _ -> :white
-        end
-
-      game
-      |> Map.put(:status, status)
-      |> maybe_next_turn()
+    cond do
+      game_over?(game) -> %{game | status: :game_over}
+      game.status == :white -> %{game | status: :colors}
+      true -> next_turn(game)
     end
   end
 
-  defp maybe_next_turn(%Game{status: :colors} = game), do: game
-
-  defp maybe_next_turn(%Game{} = game) do
+  defp next_turn(game) do
+    game = %{game | status: :white}
     [a | rest] = game.turn_order
 
     game
@@ -161,28 +136,7 @@ defmodule Qwixx.Game do
     %{game | players: players}
   end
 
-  defp ensure_player_can_mark(_game, nil), do: {:error, :player_does_not_exist}
-
-  defp ensure_player_can_mark(%Game{} = game, player_name) when is_binary(player_name) do
-    player = Map.get(game.players, player_name)
-    ensure_player_can_mark(game, player)
-  end
-
-  defp ensure_player_can_mark(%Game{status: :white} = game, %Player{} = player) do
-    case Map.get(game.turn_actions, player.name) do
-      :awaiting_choice -> {:ok, game}
-      _ -> {:error, :player_already_went}
-    end
-  end
-
-  defp ensure_player_can_mark(%Game{status: :colors} = game, %Player{name: name}) do
-    case active_player(game) do
-      ^name -> {:ok, game}
-      _ -> {:error, :not_active_player}
-    end
-  end
-
-  def active_player(%Game{turn_order: [player | _]}), do: player
+  def active_player_name(%Game{turn_order: [player_name | _]}), do: player_name
 
   def scores(%Game{players: players}) do
     players
