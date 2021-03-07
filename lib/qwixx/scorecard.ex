@@ -32,7 +32,9 @@ defmodule Qwixx.Scorecard do
   end
 
   def pass(%__MODULE__{pass_count: num}) when num >= @pass_limit, do: {:error, :at_pass_limit}
-  def pass(%__MODULE__{pass_count: num} = scorecard), do: %{scorecard | pass_count: num + 1}
+
+  def pass(%__MODULE__{pass_count: num} = scorecard),
+    do: {:ok, %{scorecard | pass_count: num + 1}}
 
   def score(%__MODULE__{} = scorecard) do
     row_scores =

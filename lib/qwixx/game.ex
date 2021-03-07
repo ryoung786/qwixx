@@ -44,6 +44,38 @@ defmodule Qwixx.Game do
     end
   end
 
+  def pass(%Game{} = game, player_name) do
+    with {:ok, game} <- Validation.validate_pass(game, player_name),
+         player <- game.players[player_name] do
+      cond do
+        game.status == :white ->
+          pass_on_white_dice(game, player)
+
+        game.turn_actions[player_name] == :pass ->
+          take_pass_penalty(game, player)
+
+        "pass on colored dice, but marked the white dice so it's ok" ->
+          {:ok, maybe_advance(game)}
+      end
+    else
+      {:error, msg} -> {:error, msg}
+    end
+  end
+
+  defp pass_on_white_dice(game, player) do
+    game = put_in(game.turn_actions[player.name], :pass)
+    {:ok, maybe_advance(game)}
+  end
+
+  defp take_pass_penalty(game, player) do
+    with {:ok, player} <- Player.pass(player) do
+      game = put_in(game.players[player.name], player)
+      {:ok, maybe_advance(game)}
+    else
+      {:error, msg} -> {:error, msg}
+    end
+  end
+
   defp maybe_advance(%Game{} = game) do
     everyone_has_made_choice =
       game.turn_actions
