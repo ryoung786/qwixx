@@ -95,7 +95,6 @@ defmodule Qwixx.Game do
       game
       |> Map.put(:status, status)
       |> maybe_next_turn()
-      |> roll()
     end
   end
 
@@ -107,6 +106,7 @@ defmodule Qwixx.Game do
     game
     |> Map.put(:turn_order, rest ++ [a])
     |> reset_turn_actions()
+    |> roll()
   end
 
   defp reset_turn_actions(%Game{} = game) do
