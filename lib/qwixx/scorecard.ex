@@ -1,5 +1,5 @@
 defmodule Qwixx.Scorecard do
-  alias Qwixx.Scorecard
+  alias Qwixx.Scorecard, as: Card
   alias Qwixx.ScorecardRow, as: Row
 
   @colors ~w(red yellow blue green)a
@@ -12,11 +12,11 @@ defmodule Qwixx.Scorecard do
             green: Row.new(:green),
             pass_count: 0
 
-  def mark(%__MODULE__{} = _scorecard, color, _num) when color not in @colors do
+  def mark(%Card{} = _scorecard, color, _num) when color not in @colors do
     {:error, [:invalid_color]}
   end
 
-  def mark(%__MODULE__{} = scorecard, color, num) do
+  def mark(%Card{} = scorecard, color, num) do
     row = Map.get(scorecard, color)
 
     with {:ok, row} <- Row.mark(row, num) do
@@ -26,17 +26,17 @@ defmodule Qwixx.Scorecard do
     end
   end
 
-  def mark!(%__MODULE__{} = scorecard, color, num) do
+  def mark!(%Card{} = scorecard, color, num) do
     {:ok, scorecard} = mark(scorecard, color, num)
     scorecard
   end
 
-  def pass(%__MODULE__{pass_count: num}) when num >= @pass_limit, do: {:error, :at_pass_limit}
+  def pass(%Card{pass_count: num}) when num >= @pass_limit, do: {:error, :at_pass_limit}
 
-  def pass(%__MODULE__{pass_count: num} = scorecard),
+  def pass(%Card{pass_count: num} = scorecard),
     do: {:ok, %{scorecard | pass_count: num + 1}}
 
-  def score(%__MODULE__{} = scorecard) do
+  def score(%Card{} = scorecard) do
     row_scores =
       scorecard
       |> Map.from_struct()
@@ -49,7 +49,7 @@ defmodule Qwixx.Scorecard do
     %{rows: Map.new(row_scores), total: row_total + pass_total}
   end
 
-  def rows(%__MODULE__{} = scorecard), do: Map.take(scorecard, @colors)
+  def rows(%Card{} = scorecard), do: Map.take(scorecard, @colors)
 
   def lock_row(%Scorecard{} = scorecard, color) do
     row = Map.get(scorecard, color) |> Row.lock()
