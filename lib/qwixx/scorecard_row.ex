@@ -1,4 +1,6 @@
 defmodule Qwixx.ScorecardRow do
+  alias Qwixx.ScorecardRow, as: Row
+
   defstruct values: [], locked: false
 
   @scores [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78]
@@ -8,26 +10,26 @@ defmodule Qwixx.ScorecardRow do
 
   defp new_row(range) do
     values = for x <- range, do: %{val: x, status: :open}
-    %__MODULE__{locked: false, values: values}
+    %Row{locked: false, values: values}
   end
 
-  def count_checks(%__MODULE__{} = row),
+  def count_checks(%Row{} = row),
     do: Enum.count(row.values, fn %{status: status} -> status == :yes end)
 
-  def score(%__MODULE__{values: values} = row) do
+  def score(%Row{values: values} = row) do
     lock_bonus = if List.last(values).status == :yes, do: 1, else: 0
     checks = count_checks(row) + lock_bonus
     Enum.at(@scores, checks)
   end
 
-  def lock(%__MODULE__{} = row), do: %{row | locked: true}
+  def lock(%Row{} = row), do: %{row | locked: true}
 
-  def mark!(%__MODULE__{} = row, num) do
+  def mark!(%Row{} = row, num) do
     {:ok, row} = mark(row, num)
     row
   end
 
-  def mark(%__MODULE__{} = row, num) do
+  def mark(%Row{} = row, num) do
     with :ok <- validate_mark(row, num) do
       {:ok, row |> do_mark(num) |> maybe_lock()}
     else
@@ -44,7 +46,7 @@ defmodule Qwixx.ScorecardRow do
     %{row | values: a ++ [target] ++ b}
   end
 
-  defp maybe_lock(%__MODULE__{values: values} = row) do
+  defp maybe_lock(%Row{values: values} = row) do
     case List.last(values).status do
       :yes -> %{row | locked: true}
       _ -> row
@@ -55,7 +57,7 @@ defmodule Qwixx.ScorecardRow do
   ## Validation
   ######################################################################
 
-  defp validate_mark(%__MODULE__{} = row, num) do
+  defp validate_mark(%Row{} = row, num) do
     reasons = if !row.locked, do: [], else: [:locked]
     reasons = if num_in_row(row, num), do: reasons, else: reasons ++ [:num_out_of_range]
     reasons = if num_is_open(row, num), do: reasons, else: reasons ++ [:num_not_open]
@@ -64,15 +66,15 @@ defmodule Qwixx.ScorecardRow do
     if Enum.empty?(reasons), do: :ok, else: {:invalid, reasons}
   end
 
-  defp num_in_row(%__MODULE__{values: values}, num),
+  defp num_in_row(%Row{values: values}, num),
     do: Enum.find(values, fn %{val: v} -> v == num end)
 
-  defp num_is_open(%__MODULE__{values: values} = row, num) do
+  defp num_is_open(%Row{values: values} = row, num) do
     !num_in_row(row, num) or
       Enum.find(values, fn %{val: v, status: status} -> v == num and status == :open end)
   end
 
-  defp enough_to_lock(%__MODULE__{values: values} = row, num) do
+  defp enough_to_lock(%Row{values: values} = row, num) do
     lock_num = List.last(values) |> Map.get(:val)
     num == lock_num and count_checks(row) < 4
   end
