@@ -1,3 +1,6 @@
+.dice-area { display: flex; transform: scale(.25); }
+.dice-pair { display: flex; }
+
 .dice {
   &.white .face { background-color: ghostwhite; }
   &.red .face { background-color: salmon; }
