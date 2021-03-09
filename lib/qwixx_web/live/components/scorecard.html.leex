@@ -1,0 +1,34 @@
+<% %{pass_count: pass_count} = @scorecard %>
+<% scores = Scorecard.score(@scorecard) %>
+
+<div class="scorecard">
+  <div class="pass-container">
+    <%= for i <- 1..4 do %>
+      <div class="box <%= if i <= pass_count, do: "x" %>"></div>
+    <% end %>
+  </div>
+
+  <div class="rows">
+    <%= for color <- ~w(red yellow blue green)a do %>
+      <% row = Map.get(@scorecard, color) %>
+      <div class="sc-row <%= color %> <%= if row.locked, do: "locked" %>">
+        <%= for i <- 2..12 do %>
+          <div class="number-box <%= Row.number_status(row, i) %>">
+            <%= i %>
+          </div>
+        <% end %>
+        <div class="lock <%= if row.locked, do: "locked" %> <%= if Row.is_lock_marked(row), do: "marked" %>">🔒</div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="scores">
+    <%= for color <- ~w(red yellow blue green)a do %>
+      <div class="score-box <%= color %>">
+        <%= scores.rows[color] %>
+      </div>
+    <% end %>
+    <div class="score-box pass"><%= scores.pass %></div>
+    <div class="score-box total"><%= scores.total %></div>
+  </div>
+</div>

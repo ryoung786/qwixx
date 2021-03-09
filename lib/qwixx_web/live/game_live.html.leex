@@ -1,11 +1,23 @@
-<h1>
-  <%= @name %>
-</h1>
+<%= if @game.status == :awaiting_start do %>
+  <button phx-click="start_game">Start Game</button>
+<% end %>
 
-<h1>
-  <%= @code %>
-</h1>
 
-<pre>
-  <%= inspect(@game) %>
-</pre>
+<div class="dice-area" >
+  <%= if @game.status != :awaiting_start do %>
+    <%= for {color, {a, b}} <- @game.dice do %>
+      <div class="dice-pair <%= color %>">
+        <%= live_component(@socket, DiceComponent, roll: a, color: color) %>
+        <%= live_component(@socket, DiceComponent, roll: a, color: color) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<%= for {_, player} <- @game.players do %>
+  <h3><%= player.name %></h3>
+  <%= live_component(@socket, ScorecardComponent,
+    id: "scorecard-#{player.name}",
+    scorecard: player.scorecard,
+    is_owner: player.name == @name) %>
+<% end %>

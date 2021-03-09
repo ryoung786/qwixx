@@ -1,0 +1,7 @@
+<div class="dice <%= @color %>">
+  <div class="face">
+    <%= for _ <- 1..@roll do %>
+      <span class="pip"></span>
+    <% end %>
+  </div>
+</div>

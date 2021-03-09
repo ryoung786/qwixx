@@ -1,0 +1,67 @@
+.scorecard {
+  width: 100%;
+  border-radius: 5px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  display: grid;
+  grid-template-areas:
+    "   . pass      ."
+    "rows rows scores"
+    "   .    . scores";
+  grid-template-columns: 1fr auto 7.5%;
+  row-gap: 5px;
+  padding: 5px;
+
+  .pass-container {
+    grid-area: pass;
+    min-width: 100px;
+    min-height: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+
+    .box {
+      border: 1px solid black;
+      &.x::after {
+        content: "x";
+      }
+    }
+  }
+
+  .rows {
+    grid-area: rows;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+
+    .sc-row {
+      &.red {.number-box, .lock { background-color: salmon; }}
+      &.yellow {.number-box, .lock { background-color: goldenrod; }}
+      &.blue {.number-box, .lock { background-color: lightblue; }}
+      &.green {.number-box, .lock { background-color: lightgreen; }}
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 5px;
+      min-height: 50px;
+
+      .number-box, .lock {
+        border-radius: 3px;
+        display: grid;
+        justify-content: center;
+        align-content: center;
+      }
+      .number-box {
+        display: grid;
+        justify-content: center;
+        align-content: center;
+      }
+      // .lock { text-align: center; }
+    }
+  }
+
+  .scores {
+    grid-area: scores;
+    .score-box {
+      text-align: center;
+    }
+  }
+}
