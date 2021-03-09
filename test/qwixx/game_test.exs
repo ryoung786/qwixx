@@ -113,10 +113,12 @@ defmodule Qwixx.GameTest do
         |> Player.mark!(:red, 3)
         |> Player.mark!(:red, 4)
         |> Player.mark!(:red, 5)
+        |> Player.mark!(:red, 6)
         |> Player.mark!(:yellow, 2)
         |> Player.mark!(:yellow, 3)
         |> Player.mark!(:yellow, 4)
         |> Player.mark!(:yellow, 5)
+        |> Player.mark!(:yellow, 6)
 
       game = put_in(game.players[player.name], player)
 
@@ -129,7 +131,7 @@ defmodule Qwixx.GameTest do
       # now red and yellow are both locked and the game is over
       {:ok, game} = Game.mark(game, active_name, :yellow, 12)
 
-      assert %{^active_name => %{total: 42}, ^other_player => %{total: 0}} = Game.scores(game)
+      assert %{^active_name => %{total: 56}, ^other_player => %{total: 0}} = Game.scores(game)
       assert game.status == :game_over
     end
 
@@ -148,6 +150,7 @@ defmodule Qwixx.GameTest do
         |> Player.mark!(:red, 3)
         |> Player.mark!(:red, 4)
         |> Player.mark!(:red, 5)
+        |> Player.mark!(:red, 6)
 
       player2 =
         game.players[other_name]
@@ -155,6 +158,7 @@ defmodule Qwixx.GameTest do
         |> Player.mark!(:yellow, 3)
         |> Player.mark!(:yellow, 4)
         |> Player.mark!(:yellow, 5)
+        |> Player.mark!(:yellow, 6)
 
       game = put_in(game.players[active_name], player1)
       game = put_in(game.players[other_name], player2)
@@ -165,7 +169,7 @@ defmodule Qwixx.GameTest do
       # now red and yellow are both locked and the game is over
       {:ok, game} = Game.mark(game, active_name, :red, 12)
 
-      assert %{^active_name => %{total: 21}, ^other_name => %{total: 21}} = Game.scores(game)
+      assert %{^active_name => %{total: 28}, ^other_name => %{total: 28}} = Game.scores(game)
       assert game.status == :game_over
     end
   end

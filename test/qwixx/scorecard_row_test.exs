@@ -61,12 +61,12 @@ defmodule Qwixx.ScorecardRowTest do
 
   describe "mark" do
     test "red locks after 12" do
-      row = Row.new(:red) |> mark([5, 6, 7, 9])
+      row = Row.new(:red) |> mark([5, 6, 7, 9, 10])
       assert {:ok, %{locked: true}} = Row.mark(row, 12)
     end
 
     test "blue locks after 2" do
-      row = Row.new(:blue) |> mark([12, 10, 9, 3])
+      row = Row.new(:blue) |> mark([12, 10, 9, 4, 3])
       assert {:ok, %{locked: true}} = Row.mark(row, 2)
     end
   end

@@ -13,16 +13,26 @@ defmodule Qwixx.ScorecardRow do
     %Row{locked: false, values: values}
   end
 
+  def number_status(%Row{} = row, num) do
+    with %{status: status} <- num_in_row(row, num) do
+      status
+    else
+      _ -> {:error, :num_out_of_range}
+    end
+  end
+
   def count_checks(%Row{} = row),
     do: Enum.count(row.values, fn %{status: status} -> status == :yes end)
 
-  def score(%Row{values: values} = row) do
-    lock_bonus = if List.last(values).status == :yes, do: 1, else: 0
+  def score(%Row{} = row) do
+    lock_bonus = if is_lock_marked(row), do: 1, else: 0
     checks = count_checks(row) + lock_bonus
     Enum.at(@scores, checks)
   end
 
   def lock(%Row{} = row), do: %{row | locked: true}
+
+  def is_lock_marked(%Row{} = row), do: List.last(row.values).status == :yes
 
   def mark!(%Row{} = row, num) do
     {:ok, row} = mark(row, num)
@@ -69,13 +79,15 @@ defmodule Qwixx.ScorecardRow do
   defp num_in_row(%Row{values: values}, num),
     do: Enum.find(values, fn %{val: v} -> v == num end)
 
-  defp num_is_open(%Row{values: values} = row, num) do
-    !num_in_row(row, num) or
-      Enum.find(values, fn %{val: v, status: status} -> v == num and status == :open end)
+  defp num_is_open(%Row{} = row, num) do
+    case num_in_row(row, num) do
+      %{status: s} when s != :open -> false
+      _ -> true
+    end
   end
 
   defp enough_to_lock(%Row{values: values} = row, num) do
     lock_num = List.last(values) |> Map.get(:val)
-    num == lock_num and count_checks(row) < 4
+    num == lock_num and count_checks(row) < 5
   end
 end
