@@ -35,7 +35,7 @@
 
     .sc-row {
       &.red {.number-box, .lock { background-color: salmon; }}
-      &.yellow {.number-box, .lock { background-color: goldenrod; }}
+      &.yellow {.number-box, .lock { background-color: khaki; }}
       &.blue {.number-box, .lock { background-color: lightblue; }}
       &.green {.number-box, .lock { background-color: lightgreen; }}
       display: grid;

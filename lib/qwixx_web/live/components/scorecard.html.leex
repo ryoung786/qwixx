@@ -13,7 +13,14 @@
       <% row = Map.get(@scorecard, color) %>
       <div class="sc-row <%= color %> <%= if row.locked, do: "locked" %>">
         <%= for i <- 2..12 do %>
-          <div class="number-box <%= Row.number_status(row, i) %>">
+          <div class="number-box <%= Row.number_status(row, i) %>"
+               <%= if @is_owner do %>
+               phx-click="mark"
+               phx-target="<%= @myself %>"
+               phx-value-number="<%= i %>"
+               phx-value-color="<%= color %>"
+               <% end %>
+          >
             <%= i %>
           </div>
         <% end %>

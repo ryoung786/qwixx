@@ -19,5 +19,7 @@
   <%= live_component(@socket, ScorecardComponent,
     id: "scorecard-#{player.name}",
     scorecard: player.scorecard,
+    code: @code,
+    name: @name,
     is_owner: player.name == @name) %>
 <% end %>

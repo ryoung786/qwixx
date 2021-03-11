@@ -12,7 +12,7 @@ defmodule QwixxWeb.GameLive do
 
   @impl true
   def handle_event("start_game", _params, socket) do
-    GameServer.start_game(socket.assigns.code)
-    {:noreply, socket}
+    {:ok, game} = GameServer.start_game(socket.assigns.code)
+    {:noreply, assign(socket, game: game)}
   end
 end
