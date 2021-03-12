@@ -50,11 +50,43 @@
         align-content: center;
       }
       .number-box {
+        position: relative;
         display: grid;
         justify-content: center;
         align-content: center;
+        cursor: default;
+        &.no {
+          filter: brightness(0.6);
+        }
+        &.yes {
+          span { display: none; }
+          &::after {
+            content: "✔";
+            font-size: 2em;
+          }
+        }
+        &.open.possible-move {
+          animation-name: pulse-possible-move;
+          animation-duration: 2s;
+          animation-iteration-count: infinite;
+          cursor: pointer;
+
+          @keyframes pulse-possible-move {
+            0% {
+              filter: brightness(1);
+            }
+            35% {
+              filter: brightness(1.5);
+            }
+            70 {
+              filter: brightness(1);
+            }
+            100 {
+              filter: brightness(1);
+            }
+          }
+        }
       }
-      // .lock { text-align: center; }
     }
   }
 

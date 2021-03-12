@@ -21,5 +21,6 @@
     scorecard: player.scorecard,
     code: @code,
     name: @name,
+    valid_moves: Qwixx.Validation.valid_moves(@game, @name),
     is_owner: player.name == @name) %>
 <% end %>
