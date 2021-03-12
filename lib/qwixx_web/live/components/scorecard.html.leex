@@ -12,8 +12,8 @@
     <%= for color <- ~w(red yellow blue green)a do %>
       <% row = Map.get(@scorecard, color) %>
       <div class="sc-row <%= color %> <%= if row.locked, do: "locked" %>">
-        <%= for i <- 2..12 do %>
-          <div class="number-box <%= Row.number_status(row, i) %>"
+        <%= for %{val: i, status: status} <- row.values do %>
+          <div class="number-box <%= status %>"
                <%= if @is_owner do %>
                phx-click="mark"
                phx-target="<%= @myself %>"

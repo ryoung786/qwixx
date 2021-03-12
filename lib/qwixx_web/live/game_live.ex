@@ -15,4 +15,10 @@ defmodule QwixxWeb.GameLive do
     {:ok, game} = GameServer.start_game(socket.assigns.code)
     {:noreply, assign(socket, game: game)}
   end
+
+  @impl true
+  def handle_info({:put_flash, key, msg}, socket) do
+    msg = if is_list(msg), do: hd(msg), else: msg
+    {:noreply, put_flash(socket, key, msg)}
+  end
 end
