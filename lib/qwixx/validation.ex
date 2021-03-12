@@ -61,6 +61,7 @@ defmodule Qwixx.Validation do
 
   defp num_matches_dice(%Game{status: :white} = game, _color, num) do
     {a, b} = game.dice.white
+
     if a + b == num, do: {:ok, game}, else: {:error, :number_not_dice_sum}
   end
 
@@ -68,7 +69,7 @@ defmodule Qwixx.Validation do
     {a, b} = game.dice.white
     {c, d} = Map.get(game.dice, color)
 
-    if num in [a + c, a + b, b + c, b + d],
+    if num in [a + c, a + d, b + c, b + d],
       do: {:ok, game},
       else: {:error, :number_not_dice_sum}
   end
