@@ -1,8 +1,13 @@
 <% %{pass_count: pass_count} = @scorecard %>
 <% scores = Scorecard.score(@scorecard) %>
 
-<div class="scorecard">
-  <div class="pass-container">
+<div class="scorecard <%= if @is_owner, do: "owner" %>">
+  <div class="pass-container <%= if :pass in @valid_moves, do: "possible-move" %>"
+       <%= if :pass in @valid_moves do %>
+         phx-click="pass"
+         phx-target="<%= @myself %>"
+       <% end %>
+  >
     <%= for i <- 1..4 do %>
       <div class="box <%= if i <= pass_count, do: "x" %>"></div>
     <% end %>

@@ -2,7 +2,7 @@ defmodule QwixxWeb.Components.Scorecard do
   use QwixxWeb, :live_component
   import Ecto.Changeset
   alias Qwixx.GameServer
-  alias Qwixx.Validation
+  # alias Qwixx.Validation
   alias Qwixx.Scorecard
   alias Qwixx.ScorecardRow, as: Row
 
@@ -11,11 +11,7 @@ defmodule QwixxWeb.Components.Scorecard do
     %{code: code, name: name} = socket.assigns
 
     with {:ok, %{color: color, number: num}} <- normalize_mark_params(params),
-         {:ok, game} <- GameServer.mark(code, name, color, num) do
-      player = Map.get(game.players, name)
-
-      # {:noreply,
-      #  assign(socket, scorecard: player.scorecard, valid_moves: Validation.valid_moves(game, name))}
+         {:ok, _game} <- GameServer.mark(code, name, color, num) do
       {:noreply, socket}
     else
       {:error, %Ecto.Changeset{}} -> {:noreply, socket |> flash(:error, "Invalid input")}
@@ -27,9 +23,8 @@ defmodule QwixxWeb.Components.Scorecard do
   def handle_event("pass", _params, socket) do
     %{code: code, name: name} = socket.assigns
 
-    with {:ok, game} <- GameServer.pass(code, name) do
-      {:noreply, assign(socket, game: game)}
-    else
+    case GameServer.pass(code, name) do
+      {:ok, _} -> {:noreply, socket}
       {:error, err} -> {:noreply, put_flash(socket, :info, err)}
     end
   end

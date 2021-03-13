@@ -83,14 +83,21 @@ defmodule Qwixx.Validation do
     end
   end
 
-  defp do_valid_moves(%Game{status: :white, dice: dice}, %Player{} = player) do
-    {a, b} = dice.white
-    sum = a + b
-    scorecard = player.scorecard
+  defp do_valid_moves(%Game{status: :white, dice: dice} = game, %Player{} = player) do
+    if game.turn_actions[player.name] == :awaiting_choice do
+      {a, b} = dice.white
+      sum = a + b
+      scorecard = player.scorecard
 
-    Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
-      if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
-    end)
+      marks =
+        Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
+          if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
+        end)
+
+      [:pass | marks]
+    else
+      []
+    end
   end
 
   defp do_valid_moves(%Game{status: :colors, dice: dice} = game, %Player{} = player) do
@@ -98,18 +105,21 @@ defmodule Qwixx.Validation do
       {a, b} = dice.white
       scorecard = player.scorecard
 
-      Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
-        if !row.locked do
-          {c, d} = Map.get(dice, color)
+      marks =
+        Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
+          if !row.locked do
+            {c, d} = Map.get(dice, color)
 
-          acc ++
-            Enum.reduce([a + c, a + d, b + c, b + d], acc, fn sum, acc ->
-              if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
-            end)
-        else
-          []
-        end
-      end)
+            acc ++
+              Enum.reduce([a + c, a + d, b + c, b + d], acc, fn sum, acc ->
+                if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
+              end)
+          else
+            acc
+          end
+        end)
+
+      [:pass | marks]
     else
       []
     end

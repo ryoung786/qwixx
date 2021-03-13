@@ -12,7 +12,7 @@ defmodule QwixxWeb.GameLive do
     if connected?(socket),
       do: Phoenix.PubSub.subscribe(Qwixx.PubSub, "game:#{code}")
 
-    {:ok, assign(socket, game: game, name: name, code: code)}
+    {:ok, assign(socket, game: game, player_name: name, code: code)}
   end
 
   @impl true
@@ -35,13 +35,13 @@ defmodule QwixxWeb.GameLive do
 
   @impl true
   def handle_info(%Msg{event: :mark} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] msg handled")
+    IO.inspect(msg, label: "[xxx] mark handled")
     {:noreply, assign(socket, game: msg.game)}
   end
 
   @impl true
   def handle_info(%Msg{event: :pass} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] msg handled")
+    IO.inspect(msg, label: "[xxx] #{msg.data} passed")
     {:noreply, assign(socket, game: msg.game)}
   end
 

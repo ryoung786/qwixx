@@ -2,6 +2,8 @@
   <button phx-click="start_game">Start Game</button>
 <% end %>
 
+<% player = @game.players[@player_name] %>
+
 
 <div class="dice-area" >
   <%= if @game.status != :awaiting_start do %>
@@ -14,13 +16,16 @@
   <% end %>
 </div>
 
-<%= for {_, player} <- @game.players do %>
-  <h3><%= player.name %></h3>
-  <%= live_component(@socket, ScorecardComponent,
-    id: "scorecard-#{player.name}",
-    scorecard: player.scorecard,
-    code: @code,
-    name: @name,
-    valid_moves: Qwixx.Validation.valid_moves(@game, @name),
-    is_owner: player.name == @name) %>
+<h3><%= player.name %></h3>
+<%= live_component(@socket, ScorecardComponent,
+  id: "scorecard-#{player.name}",
+  scorecard: player.scorecard,
+  code: @code,
+  name: player.name,
+  valid_moves: Qwixx.Validation.valid_moves(@game, player.name),
+  is_owner: true) %>
+
+
+<%= for {_, _player} <- Map.delete(@game.players, player.name) do %>
+
 <% end %>
