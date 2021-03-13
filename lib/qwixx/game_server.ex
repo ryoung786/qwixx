@@ -1,7 +1,12 @@
 defmodule Qwixx.GameServer do
   use GenServer, restart: :transient
   alias Qwixx.Game
+  alias Qwixx.PubSub.Msg
   require Logger
+
+  defmodule State do
+    defstruct code: nil, game: nil
+  end
 
   def start_link(code), do: GenServer.start_link(__MODULE__, code, name: via_tuple(code))
 
@@ -38,54 +43,77 @@ defmodule Qwixx.GameServer do
   ## Server
 
   @impl true
-  def handle_call({:add_player, name}, _from, %Game{} = game) do
-    game = Game.add_player(game, name)
-    {:reply, {:ok, game.players}, game}
+  def handle_call({:add_player, name}, _from, %State{code: code, game: game} = state) do
+    case Game.add_player(game, name) do
+      %Game{} = game ->
+        broadcast(code, game, :player_added, name)
+        IO.inspect(name, label: "[player added] ")
+        {:reply, {:ok, game.players}, %{state | game: game}}
+
+      {:error, msg} ->
+        IO.inspect(msg, label: "[error] ")
+        {:reply, {:error, msg}, state}
+    end
   end
 
   @impl true
-  def handle_call({:remove_player, name}, _from, %Game{} = game) do
-    game = Game.remove_player(game, name)
-    {:reply, {:ok, game.players}, game}
+  def handle_call({:remove_player, name}, _from, %State{code: code, game: game} = state) do
+    case Game.remove_player(game, name) do
+      %Game{} = game ->
+        broadcast(code, game, :player_removed, name)
+        {:reply, {:ok, game.players}, %{state | game: game}}
+
+      error ->
+        {:reply, error, state}
+    end
   end
 
   @impl true
-  def handle_call({:start_game}, _from, %Game{} = game) do
+  def handle_call({:start_game}, _from, %State{code: code, game: game} = state) do
     game = Game.start(game)
-    {:reply, {:ok, game}, game}
+    broadcast(code, game, :game_started)
+    {:reply, {:ok, game}, %{state | game: game}}
   end
 
   @impl true
-  def handle_call({:mark, name, color, num}, _from, %Game{} = game) do
+  def handle_call({:mark, name, color, num}, _from, %State{code: code, game: game} = state) do
     case Game.mark(game, name, color, num) do
-      {:ok, game} -> {:reply, {:ok, game}, game}
-      {:error, msg} -> {:reply, {:error, msg}, game}
+      {:ok, game} ->
+        broadcast(code, game, :mark, %Msg.Mark{player_name: name, color: color, number: num})
+        {:reply, {:ok, game}, %{state | game: game}}
+
+      {:error, msg} ->
+        {:reply, {:error, msg}, state}
     end
   end
 
   @impl true
-  def handle_call({:pass, name}, _from, %Game{} = game) do
+  def handle_call({:pass, name}, _from, %State{code: code, game: game} = state) do
     case Game.pass(game, name) do
-      {:ok, game} -> {:reply, {:ok, game}, game}
-      {:error, msg} -> {:reply, {:error, msg}, game}
+      {:ok, game} ->
+        broadcast(code, game, :pass, name)
+        {:reply, {:ok, game}, %{state | game: game}}
+
+      {:error, msg} ->
+        {:reply, {:error, msg}, state}
     end
   end
 
   @impl true
-  def handle_call({:get_game}, _from, %Game{} = game) do
-    {:reply, game, game}
+  def handle_call({:get_game}, _from, %State{game: game} = state) do
+    {:reply, game, state}
   end
 
   @impl true
-  def handle_call(catchall, _from, %Game{} = game) do
+  def handle_call(catchall, _from, %State{game: game} = state) do
     IO.inspect(catchall, label: "[catchall] ")
-    {:reply, game, game}
+    {:reply, game, state}
   end
 
   ## Callbacks
 
   @impl true
-  def init(_code), do: {:ok, %Game{}}
+  def init(code), do: {:ok, %State{code: code, game: %Game{}}}
 
   def game_pid(code) do
     code
@@ -98,6 +126,14 @@ defmodule Qwixx.GameServer do
       pid when is_pid(pid) -> GenServer.call(pid, command)
       nil -> {:error, :game_not_found}
     end
+  end
+
+  defp broadcast(code, game, event, data \\ nil) do
+    Phoenix.PubSub.broadcast(Qwixx.PubSub, "game:#{code}", %Msg{
+      event: event,
+      data: data,
+      game: game
+    })
   end
 
   # defp cast(code, command) do

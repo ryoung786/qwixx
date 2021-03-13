@@ -11,15 +11,23 @@ defmodule Qwixx.Game do
   @locked_color_limit 2
 
   def add_player(%Game{} = game, name) do
-    players = Map.put(game.players, name, %Player{name: name})
-    added_to_end = game.turn_order ++ [name]
-    %{game | players: players, turn_order: added_to_end}
+    if name not in Map.keys(game.players) do
+      players = Map.put(game.players, name, %Player{name: name})
+      added_to_end = game.turn_order ++ [name]
+      %{game | players: players, turn_order: added_to_end}
+    else
+      {:error, :player_name_taken}
+    end
   end
 
   def remove_player(%Game{} = game, name) do
-    players = Map.delete(game.players, name)
-    removed = List.delete(game.turn_order, name)
-    %{game | players: players, turn_order: removed}
+    if name in Map.keys(game.players) do
+      players = Map.delete(game.players, name)
+      removed = List.delete(game.turn_order, name)
+      %{game | players: players, turn_order: removed}
+    else
+      {:error, :player_not_in_game}
+    end
   end
 
   def start(%Game{players: players} = game) when map_size(players) > 0 do

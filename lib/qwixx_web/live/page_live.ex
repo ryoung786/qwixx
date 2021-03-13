@@ -30,9 +30,9 @@ defmodule QwixxWeb.PageLive do
     |> validate_join_input()
     |> apply_action(:join)
     |> case do
-      {:ok, input} ->
-        url = Routes.session_path(socket, :join, code: input.code, name: input.name)
-        {:noreply, redirect(socket, to: url)}
+      {:ok, %{name: name, code: code}} ->
+        GameServer.add_player(code, name)
+        redirect_to_game(socket, name, code)
 
       {:error, changeset} ->
         {:noreply, assign(socket, join_changeset: changeset)}
@@ -84,8 +84,8 @@ defmodule QwixxWeb.PageLive do
   def validate_gameserver_at_code_exists(%{valid?: false} = cs), do: cs
 
   def validate_gameserver_at_code_exists(cs) do
-    case fetch_field(cs, :code) |> GameServer.game_pid() do
-      nil -> add_error(cs, :code, "Game does not exist")
+    case get_field(cs, :code) |> GameServer.game_pid() do
+      nil -> add_error(cs, :code, "Game does not exist") |> IO.inspect(label: "[WHY?] ")
       _ -> cs
     end
   end
@@ -93,7 +93,10 @@ defmodule QwixxWeb.PageLive do
   defp redirect_to_new_game(socket, name) do
     code = GameServer.new_game_server()
     GameServer.add_player(code, name)
+    redirect_to_game(socket, name, code)
+  end
 
+  defp redirect_to_game(socket, name, code) do
     url = Routes.session_path(socket, :join, code: code, name: name)
     {:noreply, redirect(socket, to: url)}
   end

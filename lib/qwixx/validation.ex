@@ -77,37 +77,43 @@ defmodule Qwixx.Validation do
 
   def valid_moves(%Game{} = game, player_name) do
     with %Player{} = player <- Map.get(game.players, player_name) do
-      valid_moves(game.status, player.scorecard, game.dice)
+      do_valid_moves(game, player)
     else
       nil -> []
     end
   end
 
-  defp valid_moves(:white = _game_status, %Scorecard{} = scorecard, dice) do
+  defp do_valid_moves(%Game{status: :white, dice: dice}, %Player{} = player) do
     {a, b} = dice.white
     sum = a + b
+    scorecard = player.scorecard
 
     Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
       if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
     end)
   end
 
-  defp valid_moves(:colors = _game_status, %Scorecard{} = scorecard, dice) do
-    {a, b} = dice.white
+  defp do_valid_moves(%Game{status: :colors, dice: dice} = game, %Player{} = player) do
+    if Game.active_player_name(game) == player.name do
+      {a, b} = dice.white
+      scorecard = player.scorecard
 
-    Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
-      if !row.locked do
-        {c, d} = Map.get(dice, color)
+      Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
+        if !row.locked do
+          {c, d} = Map.get(dice, color)
 
-        acc ++
-          Enum.reduce([a + c, a + d, b + c, b + d], acc, fn sum, acc ->
-            if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
-          end)
-      else
-        []
-      end
-    end)
+          acc ++
+            Enum.reduce([a + c, a + d, b + c, b + d], acc, fn sum, acc ->
+              if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
+            end)
+        else
+          []
+        end
+      end)
+    else
+      []
+    end
   end
 
-  defp valid_moves(_game_status, %Scorecard{} = _scorecard, %Dice{} = _dice), do: []
+  defp do_valid_moves(_game, _player), do: []
 end
