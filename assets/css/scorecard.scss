@@ -28,6 +28,7 @@
       align-content: center;
       &.x::after {
         content: "✔";
+        font-size: .7em;
       }
     }
   }
@@ -47,19 +48,26 @@
       grid-template-columns: repeat(12, 1fr);
       gap: 5px;
       min-height: 50px;
+      &.locked {
+        .open, .lock:not(.marked) { filter: brightness(0.6); }
+      }
 
       .number-box, .lock {
         border-radius: 3px;
         display: grid;
         justify-content: center;
         align-content: center;
+        cursor: default;
+        &.marked {
+          span { display: none; }
+          &::after {
+            content: "✔";
+            font-size: 2em;
+          }
+        }
       }
       .number-box {
         position: relative;
-        display: grid;
-        justify-content: center;
-        align-content: center;
-        cursor: default;
         &.no {
           filter: brightness(0.6);
         }
@@ -72,22 +80,15 @@
         }
         &.open.possible-move {
           animation-name: pulse-possible-move;
-          animation-duration: 2s;
+          animation-duration: 1s;
           animation-iteration-count: infinite;
+          animation-direction: alternate;
+          animation-timing-function: ease-in-out;
           cursor: pointer;
 
           @keyframes pulse-possible-move {
-            0% {
-              filter: brightness(1);
-            }
-            35% {
-              filter: brightness(1.5);
-            }
-            70 {
-              filter: brightness(1);
-            }
-            100 {
-              filter: brightness(1);
+            100% {
+              background-color: white;
             }
           }
         }

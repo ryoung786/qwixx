@@ -1,9 +1,9 @@
 defmodule Qwixx.Validation do
-  alias Qwixx.{Game, Player, Dice, Scorecard}
-  alias Qwixx.ScorecardRow, as: Row
+  alias Qwixx.{Game, Player, Scorecard}
 
   def validate_mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- validate_shared_action(game, player_name),
+         {:ok, game} <- color_is_unlocked(game, color),
          {:ok, game} <- num_matches_dice(game, color, num),
          {:ok, game} <- valid_color(game, color) do
       {:ok, game}
@@ -60,6 +60,12 @@ defmodule Qwixx.Validation do
     end
   end
 
+  defp color_is_unlocked(%Game{} = game, color) do
+    if color not in Game.locked_colors(game),
+      do: {:ok, game},
+      else: {:error, :color_is_locked}
+  end
+
   defp num_matches_dice(%Game{status: :white} = game, _color, num) do
     {a, b} = game.dice.white
 
@@ -77,53 +83,24 @@ defmodule Qwixx.Validation do
 
   def valid_moves(%Game{} = game, player_name) do
     with %Player{} = player <- Map.get(game.players, player_name) do
-      do_valid_moves(game, player)
+      marks =
+        Scorecard.rows(player.scorecard)
+        |> Enum.reduce([], fn {color, _row}, acc ->
+          2..12
+          |> Enum.reduce(acc, fn i, acc ->
+            case Game.mark(game, player_name, color, i) do
+              {:ok, _} -> [{color, i} | acc]
+              _ -> acc
+            end
+          end)
+        end)
+
+      case Game.pass(game, player_name) do
+        {:ok, _} -> [:pass | marks]
+        _ -> marks
+      end
     else
       nil -> []
     end
   end
-
-  defp do_valid_moves(%Game{status: :white, dice: dice} = game, %Player{} = player) do
-    if game.turn_actions[player.name] == :awaiting_choice do
-      {a, b} = dice.white
-      sum = a + b
-      scorecard = player.scorecard
-
-      marks =
-        Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
-          if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
-        end)
-
-      [:pass | marks]
-    else
-      []
-    end
-  end
-
-  defp do_valid_moves(%Game{status: :colors, dice: dice} = game, %Player{} = player) do
-    if Game.active_player_name(game) == player.name do
-      {a, b} = dice.white
-      scorecard = player.scorecard
-
-      marks =
-        Enum.reduce(Scorecard.rows(scorecard), [], fn {color, %Row{} = row}, acc ->
-          if !row.locked do
-            {c, d} = Map.get(dice, color)
-
-            acc ++
-              Enum.reduce([a + c, a + d, b + c, b + d], acc, fn sum, acc ->
-                if Row.number_status(row, sum) == :open, do: [{color, sum} | acc], else: acc
-              end)
-          else
-            acc
-          end
-        end)
-
-      [:pass | marks]
-    else
-      []
-    end
-  end
-
-  defp do_valid_moves(_game, _player), do: []
 end

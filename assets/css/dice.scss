@@ -2,6 +2,7 @@
 .dice-pair { display: flex; }
 
 .dice {
+  &.highlight { transform: translateY(-25px); }
   &.white .face { background-color: ghostwhite; }
   &.red .face { background-color: salmon; }
   &.yellow .face { background-color: khaki; }

@@ -1,5 +1,10 @@
-<%= if @game.status == :awaiting_start do %>
-  <button phx-click="start_game">Start Game</button>
+<%= cond do %>
+  <% @game.status == :game_over -> %>
+    <h1>Game over</h1>
+    <button phx-click="start_game">Play Again</button>
+  <% @game.status == :awaiting_start -> %>
+    <button phx-click="start_game">Start Game</button>
+  <% true -> %>
 <% end %>
 
 <% player = @game.players[@player_name] %>
@@ -9,8 +14,9 @@
   <%= if @game.status != :awaiting_start do %>
     <%= for {color, {a, b}} <- @game.dice do %>
       <div class="dice-pair <%= color %>">
-        <%= live_component(@socket, DiceComponent, roll: a, color: color) %>
-        <%= live_component(@socket, DiceComponent, roll: b, color: color) %>
+        <% highlight = @game.status == :white and color == :white %>
+        <%= live_component(@socket, DiceComponent, roll: a, color: color, highlight: highlight) %>
+        <%= live_component(@socket, DiceComponent, roll: b, color: color, highlight: highlight) %>
       </div>
     <% end %>
   <% end %>

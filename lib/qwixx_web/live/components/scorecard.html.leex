@@ -30,7 +30,7 @@
             <span><%= i %></span>
           </div>
         <% end %>
-        <div class="lock <%= if row.locked, do: "locked" %> <%= if Row.is_lock_marked(row), do: "marked" %>">🔒</div>
+        <div class="lock <%= if row.locked, do: "locked" %> <%= if Row.is_lock_marked(row), do: "marked" %>"><span>🔒</span></div>
       </div>
     <% end %>
   </div>
