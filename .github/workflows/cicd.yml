@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/setup-elixir@v1.5
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
@@ -50,6 +50,10 @@ jobs:
         with:
           ref: main # Checkout out master instead of the latest commit
           fetch-depth: 0 # Checkout the whole branch
+      - uses: actions/setup-elixir@v1.5
+        with:
+          otp-version: 23.2
+          elixir-version: 1.11.3
       - run: mix deps.get --only prod
       - run: MIX_ENV=prod mix compile
       - run: npm install --prefix ./assets
