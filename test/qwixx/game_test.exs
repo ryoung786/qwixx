@@ -43,12 +43,14 @@ defmodule Qwixx.GameTest do
 
   describe "mark" do
     test "both can mark white", %{game: game} do
+      game = put_in(game.dice.white, {5, 4})
       {a, b} = game.dice.white
       assert {:ok, game} = Game.mark(game, "a", :red, a + b)
       assert {:ok, _game} = Game.mark(game, "b", :blue, a + b)
     end
 
     test "advances to colors", %{game: game} do
+      game = put_in(game.dice.white, {5, 4})
       {a, b} = game.dice.white
       {:ok, game} = Game.mark(game, "a", :red, a + b)
       {:ok, game} = Game.mark(game, "b", :blue, a + b)
@@ -58,6 +60,7 @@ defmodule Qwixx.GameTest do
     end
 
     test "changes turn after colors", %{game: game} do
+      game = put_in(game.dice.white, {5, 4})
       {a, b} = game.dice.white
       {:ok, game} = Game.mark(game, "a", :red, a + b)
       {:ok, game} = Game.mark(game, "b", :blue, a + b)
