@@ -46,6 +46,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      SECRET_KEY_BASE: ${{ secrets.PHX_SECRET_KEY_BASE }}
+
     steps:
       - uses: actions/checkout@v2
         with:
