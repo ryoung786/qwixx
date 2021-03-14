@@ -53,8 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: main # Checkout out master instead of the latest commit
-          fetch-depth: 0 # Checkout the whole branch
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-elixir@v1.5
         with:
           otp-version: 23.2
@@ -73,16 +73,15 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          # rm: true
           source: "_build/prod/rel/qwixx/"
           target: "${{ secrets.DEPLOY_DIR }}"
 
-      - name: Executing remote  command
+      - name: Starting web service
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           USERNAME: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            whoami
-            ls -al
+            qwixx/_build/prod/rel/qwixx/bin/qwixx stop
+            qwixx/_build/prod/rel/qwixx/bin/qwixx start
