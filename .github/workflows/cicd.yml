@@ -13,15 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: [22.3]
-        elixir: [1.10.3]
+        otp: [23.2]
+        elixir: [1.11.3]
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/setup-elixir@v1.5
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
+          experimental-otp: true
 
       - uses: actions/cache@v1
         id: deps-cache
@@ -52,8 +53,9 @@ jobs:
           fetch-depth: 0 # Checkout the whole branch
       - uses: actions/setup-elixir@v1.5
         with:
-          otp-version: 22.3
-          elixir-version: 1.10.3
+          otp-version: 23.2
+          elixir-version: 1.11.3
+          experimental-otp: true
       - run: mix deps.get --only prod
       - run: MIX_ENV=prod mix compile
       - run: npm install --prefix ./assets
