@@ -1,4 +1,4 @@
-# Qwixx 
+# Qwixx
 
 To start your Phoenix server:
 
