@@ -84,3 +84,4 @@ jobs:
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             nohup qwixx/_build/prod/rel/qwixx/bin/qwixx start &
+            echo "done"
