@@ -83,4 +83,4 @@ jobs:
           USERNAME: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            qwixx/_build/prod/rel/qwixx/bin/qwixx start &
+            nohup qwixx/_build/prod/rel/qwixx/bin/qwixx start &
