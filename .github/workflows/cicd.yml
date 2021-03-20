@@ -83,5 +83,5 @@ jobs:
           USERNAME: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            nohup qwixx/_build/prod/rel/qwixx/bin/qwixx start &
+            sudo systemctl restart qwixx.service
             echo "done"
