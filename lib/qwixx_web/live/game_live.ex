@@ -29,31 +29,26 @@ defmodule QwixxWeb.GameLive do
 
   @impl true
   def handle_info(%Msg{event: :game_started} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] msg handled")
     {:noreply, assign(socket, game: msg.game)}
   end
 
   @impl true
   def handle_info(%Msg{event: :mark} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] mark handled")
     {:noreply, assign(socket, game: msg.game)}
   end
 
   @impl true
   def handle_info(%Msg{event: :pass} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] #{msg.data} passed")
     {:noreply, assign(socket, game: msg.game)}
   end
 
   @impl true
   def handle_info(%Msg{event: :player_added} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] msg handled")
     {:noreply, assign(socket, game: msg.game)}
   end
 
   @impl true
   def handle_info(%Msg{event: :player_removed} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] msg handled")
     {:noreply, assign(socket, game: msg.game)}
   end
 end
