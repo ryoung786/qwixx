@@ -1,5 +1,5 @@
 defmodule Qwixx.Validation do
-  alias Qwixx.{Game, Player, Scorecard}
+  alias Qwixx.{Game, Player, Scorecard, Dice}
 
   def validate_mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- validate_shared_action(game, player_name),
@@ -67,16 +67,19 @@ defmodule Qwixx.Validation do
   end
 
   defp num_matches_dice(%Game{status: :white} = game, _color, num) do
-    {a, b} = game.dice.white
-
-    if a + b == num, do: {:ok, game}, else: {:error, :number_not_dice_sum}
+    if num in Dice.all_sums(game.dice.white),
+      do: {:ok, game},
+      else: {:error, :number_not_dice_sum}
   end
 
   defp num_matches_dice(%Game{status: :colors} = game, color, num) do
-    {a, b} = game.dice.white
-    {c, d} = Map.get(game.dice, color)
+    color_dice = Map.get(game.dice, color)
 
-    if num in [a + c, a + d, b + c, b + d],
+    possible_sums =
+      game.dice.white
+      |> Enum.flat_map(fn white_die -> Dice.all_sums([white_die | color_dice]) end)
+
+    if num in possible_sums,
       do: {:ok, game},
       else: {:error, :number_not_dice_sum}
   end

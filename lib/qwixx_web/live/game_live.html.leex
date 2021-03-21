@@ -12,11 +12,12 @@
 
 <div class="dice-area" >
   <%= if @game.status != :awaiting_start do %>
-    <%= for {color, {a, b}} <- @game.dice do %>
+    <%= for {color, dice} <- @game.dice do %>
       <div class="dice-pair <%= color %>">
         <% highlight = @game.status == :white and color == :white %>
-        <%= live_component(@socket, DiceComponent, roll: a, color: color, highlight: highlight) %>
-        <%= live_component(@socket, DiceComponent, roll: b, color: color, highlight: highlight) %>
+        <%= for roll <- dice do %>
+          <%= live_component(@socket, DiceComponent, roll: roll, color: color, highlight: highlight) %>
+        <% end %>
       </div>
     <% end %>
   <% end %>

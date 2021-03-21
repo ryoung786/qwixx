@@ -43,15 +43,15 @@ defmodule Qwixx.GameTest do
 
   describe "mark" do
     test "both can mark white", %{game: game} do
-      game = put_in(game.dice.white, {5, 4})
-      {a, b} = game.dice.white
+      game = put_in(game.dice.white, [5, 4])
+      [a, b] = game.dice.white
       assert {:ok, game} = Game.mark(game, "a", :red, a + b)
       assert {:ok, _game} = Game.mark(game, "b", :blue, a + b)
     end
 
     test "advances to colors", %{game: game} do
-      game = put_in(game.dice.white, {5, 4})
-      {a, b} = game.dice.white
+      game = put_in(game.dice.white, [5, 4])
+      [a, b] = game.dice.white
       {:ok, game} = Game.mark(game, "a", :red, a + b)
       {:ok, game} = Game.mark(game, "b", :blue, a + b)
 
@@ -60,14 +60,14 @@ defmodule Qwixx.GameTest do
     end
 
     test "changes turn after colors", %{game: game} do
-      game = put_in(game.dice.white, {5, 4})
-      {a, b} = game.dice.white
+      game = put_in(game.dice.white, [5, 4])
+      [a, b] = game.dice.white
       {:ok, game} = Game.mark(game, "a", :red, a + b)
       {:ok, game} = Game.mark(game, "b", :blue, a + b)
 
       player = Game.active_player_name(game)
       other_player = if player == "a", do: "b", else: "a"
-      {c, _} = game.dice.green
+      [c | _] = game.dice.green
 
       assert {:error, :not_active_player} = Game.mark(game, other_player, :green, a + c)
 
@@ -106,7 +106,7 @@ defmodule Qwixx.GameTest do
       other_player = if active_name == "a", do: "b", else: "a"
 
       # set dice to state we can get 2 12s
-      game = %{game | dice: %{white: {6, 6}, yellow: {6, 6}}}
+      game = %{game | dice: %{white: [6, 6], yellow: [6]}}
 
       # set active player's scorecard to have
       # red 2,3,4,5 and yellow 2,3,4,5 marked
@@ -143,7 +143,7 @@ defmodule Qwixx.GameTest do
       other_name = if active_name == "a", do: "b", else: "a"
 
       # set dice to state we can get 2 12s
-      game = %{game | dice: %{white: {6, 6}, red: {6, 6}}}
+      game = %{game | dice: %{white: [6, 6], red: [6]}}
 
       # set active player's scorecard to red 2,3,4,5
       # set other player's scorecard to yellow 2,3,4,5
@@ -180,7 +180,7 @@ defmodule Qwixx.GameTest do
   describe "dice get rolled" do
     test "on new turn", %{game: game} do
       # known bad values so we know they will change on roll
-      game = put_in(game.dice.red, {99, 99})
+      game = put_in(game.dice.red, [99])
       {:ok, game} = Game.pass(game, "a")
       {:ok, game} = Game.pass(game, "b")
 
@@ -188,7 +188,7 @@ defmodule Qwixx.GameTest do
       {:ok, game} = Game.pass(game, player)
 
       assert game.status == :white
-      assert game.dice.red != {99, 99}
+      assert 99 not in game.dice.red
     end
   end
 end
