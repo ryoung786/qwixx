@@ -84,4 +84,3 @@ jobs:
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             sudo systemctl restart qwixx.service
-            echo "done"
