@@ -48,6 +48,8 @@ jobs:
 
     env:
       SECRET_KEY_BASE: ${{ secrets.PHX_SECRET_KEY_BASE }}
+      LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
+      LOGFLARE_SOURCE_ID: ${{ secrets.LOGFLARE_SOURCE_ID }}
       MIX_ENV: prod
 
     steps:

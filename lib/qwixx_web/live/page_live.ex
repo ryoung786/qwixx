@@ -85,7 +85,7 @@ defmodule QwixxWeb.PageLive do
 
   def validate_gameserver_at_code_exists(cs) do
     case get_field(cs, :code) |> GameServer.game_pid() do
-      nil -> add_error(cs, :code, "Game does not exist") |> IO.inspect(label: "[WHY?] ")
+      nil -> add_error(cs, :code, "Game does not exist")
       _ -> cs
     end
   end

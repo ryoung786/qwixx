@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
@@ -14,8 +14,24 @@ config :qwixx, QwixxWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
   check_origin: ["https://qwixx.ryoung.info"]
 
-# Do not print debug messages in production
-config :logger, level: :info
+# Logger config
+
+config :logflare_logger_backend,
+  # https://api.logflare.app is configured by default and you can set your own url
+  url: "https://api.logflare.app",
+  # Default LogflareLogger level is :info. Note that log messages are filtered by the :logger application first
+  level: :info,
+  api_key: System.get_env("LOGFLARE_API_KEY"),
+  source_id: System.get_env("LOGFLARE_SOURCE_ID"),
+  # minimum time in ms before a log batch is sent to the server ",
+  flush_interval: 1_000,
+  # maximum number of events before a log batch is sent to the server
+  max_batch_size: 50
+
+config :logger,
+  # or other Logger level,
+  level: :info,
+  backends: [:console, LogflareLogger.HttpBackend]
 
 # ## SSL Support
 #
@@ -50,7 +66,3 @@ config :logger, level: :info
 #       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
-
-# Finally import the config/prod.secret.exs which loads secrets
-# and configuration from environment variables.
-import_config "prod.secret.exs"
