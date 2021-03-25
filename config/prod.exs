@@ -12,7 +12,8 @@ import Config
 config :qwixx, QwixxWeb.Endpoint,
   url: [host: "qwixx.ryoung.info", port: 4001],
   cache_static_manifest: "priv/static/cache_manifest.json",
-  check_origin: ["https://qwixx.ryoung.info"]
+  check_origin: ["https://qwixx.ryoung.info"],
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
 
 # Logger config
 
