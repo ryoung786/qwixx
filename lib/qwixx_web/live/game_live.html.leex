@@ -12,11 +12,17 @@
 
 <div class="dice-area" >
   <%= if @game.status != :awaiting_start do %>
-    <%= for {color, dice} <- @game.dice do %>
-      <div class="dice-pair <%= color %>">
-        <% highlight = @game.status == :white and color == :white %>
+
+    <div class="dice-pair">
+      <%= for roll <- @game.dice.white do %>
+        <%= live_component(@socket, DiceComponent, roll: roll, color: "white", highlight: @game.status == :white) %>
+      <% end %>
+    </div>
+
+    <%= for {color, dice} <- Map.delete(@game.dice, :white) do %>
+      <div class="dice-pair">
         <%= for roll <- dice do %>
-          <%= live_component(@socket, DiceComponent, roll: roll, color: color, highlight: highlight) %>
+          <%= live_component(@socket, DiceComponent, roll: roll, color: color, highlight: false) %>
         <% end %>
       </div>
     <% end %>
