@@ -9,6 +9,13 @@
 
 <% player = @game.players[@player_name] %>
 
+<div class="player-turn-area">
+  <ul>
+    <%= for player_name <- @game.turn_order do %>
+      <li class="player"><%= player_name %></li>
+    <% end %>
+  </ul>
+</div>
 
 <div class="dice-area" >
   <%= if @game.status != :awaiting_start do %>

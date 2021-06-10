@@ -13,7 +13,7 @@ defmodule Qwixx.GameServer do
   def new_game_server() do
     code = generate_code()
 
-    case code |> new_game_server() do
+    case new_game_server(code) do
       {:ok, _pid} -> code
       {:error, {:already_started, _}} -> new_game_server()
     end
