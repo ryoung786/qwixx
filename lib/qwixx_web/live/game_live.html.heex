@@ -17,19 +17,18 @@
   </ul>
 </div>
 
-<div class="dice-area" >
+<div class="dice-area">
   <%= if @game.status != :awaiting_start do %>
-
     <div class="dice-pair">
       <%= for roll <- @game.dice.white do %>
-        <%= live_component(@socket, DiceComponent, roll: roll, color: "white", highlight: @game.status == :white) %>
+        <DiceComponent.dice roll={roll} color="white" highlight={@game.status == :white} />
       <% end %>
     </div>
 
     <%= for {color, dice} <- Map.delete(@game.dice, :white) do %>
       <div class="dice-pair">
         <%= for roll <- dice do %>
-          <%= live_component(@socket, DiceComponent, roll: roll, color: color, highlight: false) %>
+          <DiceComponent.dice roll={roll} color={color} highlight={false} />
         <% end %>
       </div>
     <% end %>
@@ -37,15 +36,11 @@
 </div>
 
 <h3><%= player.name %></h3>
-<%= live_component(@socket, ScorecardComponent,
+<%= live_component(ScorecardComponent,
   id: "scorecard-#{player.name}",
   scorecard: player.scorecard,
   code: @code,
   name: player.name,
   valid_moves: Qwixx.Validation.valid_moves(@game, player.name),
-  is_owner: true) %>
-
-
-<%= for {_, _player} <- Map.delete(@game.players, player.name) do %>
-
-<% end %>
+  is_owner: true
+) %>
