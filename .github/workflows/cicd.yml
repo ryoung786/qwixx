@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: [23.2]
-        elixir: [1.11.3]
+        otp: [24.2]
+        elixir: [1.13.4]
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1.5
+      - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
@@ -57,7 +57,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - uses: actions/setup-elixir@v1.5
+      - uses: erlef/setup-beam@v1
         with:
           otp-version: 23.2
           elixir-version: 1.11.3
