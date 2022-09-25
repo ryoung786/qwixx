@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: [24.2]
-        elixir: [1.13.4]
+        otp: [25.0]
+        elixir: [1.14.0]
 
     steps:
       - uses: actions/checkout@v2
@@ -59,8 +59,8 @@ jobs:
           fetch-depth: 0
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: 24.2
-          elixir-version: 1.13.4
+          otp-version: 25.0
+          elixir-version: 1.14.0
           experimental-otp: true
       - run: mix deps.get --only prod
       - run: mix compile
