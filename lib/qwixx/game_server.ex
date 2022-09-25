@@ -13,13 +13,13 @@ defmodule Qwixx.GameServer do
   def new_game_server() do
     code = generate_code()
 
-    case new_game_server(code) do
+    case start_server_process(code) do
       {:ok, _pid} -> code
       {:error, {:already_started, _}} -> new_game_server()
     end
   end
 
-  defp new_game_server(code) do
+  defp start_server_process(code) do
     DynamicSupervisor.start_child(Qwixx.GameSupervisor, {__MODULE__, code})
   end
 
