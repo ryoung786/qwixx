@@ -41,7 +41,9 @@ defmodule Qwixx.Validation do
   defp game_has_started(game), do: {:ok, game}
 
   defp only_active_player_use_colors(%Game{status: :colors} = game, player_name) do
-    if Game.active_player_name(game) == player_name,
+    %{turn_order: [active_player_name | _]} = game
+
+    if active_player_name == player_name,
       do: {:ok, game},
       else: {:error, :not_active_player}
   end

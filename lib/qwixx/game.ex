@@ -34,24 +34,12 @@ defmodule Qwixx.Game do
     end
   end
 
-  def start(%Game{players: players} = game) when map_size(players) > 0 do
-    game
+  def start(%Game{players: players}) when map_size(players) > 0 do
+    players
+    |> Enum.reduce(%Game{}, fn {name, _}, game -> Game.add_player(game, name) end)
     |> Map.put(:status, :awaiting_start)
-    |> reset_scorecards()
-    |> shuffle_player_order()
+    |> Map.put(:turn_order, players |> Map.keys() |> Enum.shuffle())
     |> advance()
-  end
-
-  defp roll(%Game{} = game) do
-    dice = %{
-      red: :rand.uniform(6),
-      yellow: :rand.uniform(6),
-      blue: :rand.uniform(6),
-      green: :rand.uniform(6),
-      white: {:rand.uniform(6), :rand.uniform(6)}
-    }
-
-    %{game | dice: Map.drop(dice, game.locked_colors)}
   end
 
   def mark(%Game{} = game, player_name, color, num) do
@@ -70,7 +58,8 @@ defmodule Qwixx.Game do
 
       cond do
         game.status == :white ->
-          pass_on_white_dice(game, player)
+          game = put_in(game.turn_actions[player.name], :pass)
+          {:ok, maybe_advance(game)}
 
         game.turn_actions[player_name] == :pass ->
           take_pass_penalty(game, player)
@@ -79,11 +68,6 @@ defmodule Qwixx.Game do
           {:ok, maybe_advance(game)}
       end
     end
-  end
-
-  defp pass_on_white_dice(game, player) do
-    game = put_in(game.turn_actions[player.name], :pass)
-    {:ok, maybe_advance(game)}
   end
 
   defp take_pass_penalty(game, player) do
@@ -115,59 +99,28 @@ defmodule Qwixx.Game do
       end)
 
     game = %{game | locked_colors: MapSet.to_list(locked_colors)}
+    pass_limit_hit = Enum.any?(game.players, fn {_, %{scorecard: card}} -> card.pass_count >= @pass_limit end)
 
     cond do
-      game_over?(game) -> %{game | status: :game_over}
+      pass_limit_hit || Enum.count(game.locked_colors) >= @locked_color_limit -> %{game | status: :game_over}
       game.status == :white -> %{game | status: :colors}
       true -> next_turn(game)
     end
   end
 
-  defp next_turn(game) do
-    game = %{game | status: :white}
-    [a | rest] = game.turn_order
+  defp next_turn(%{turn_order: [a | rest]} = game) do
+    dice = %{
+      red: :rand.uniform(6),
+      yellow: :rand.uniform(6),
+      blue: :rand.uniform(6),
+      green: :rand.uniform(6),
+      white: {:rand.uniform(6), :rand.uniform(6)}
+    }
 
     game
+    |> Map.put(:status, :white)
     |> Map.put(:turn_order, rest ++ [a])
-    |> reset_turn_actions()
-    |> roll()
-  end
-
-  defp reset_turn_actions(%Game{} = game) do
-    turn_actions =
-      Map.new(game.players, fn {name, _} -> {name, :awaiting_choice} end)
-
-    %{game | turn_actions: turn_actions}
-  end
-
-  defp game_over?(%Game{players: players} = game) do
-    any_players_hit_pass_limit =
-      Enum.any?(players, fn {_, %{scorecard: card}} -> card.pass_count >= @pass_limit end)
-
-    any_players_hit_pass_limit || Enum.count(game.locked_colors) >= @locked_color_limit
-  end
-
-  defp shuffle_player_order(%Game{players: players} = game) do
-    names = Map.keys(players)
-    %{game | turn_order: Enum.shuffle(names)}
-  end
-
-  def locked_colors(%Game{} = game), do: game.locked_colors
-
-  defp reset_scorecards(%Game{players: players} = game) do
-    players =
-      Map.new(players, fn {name, _} ->
-        {name, %Player{name: name}}
-      end)
-
-    %{game | players: players}
-  end
-
-  def active_player_name(%Game{turn_order: [player_name | _]}), do: player_name
-
-  def scores(%Game{players: players}) do
-    Map.new(players, fn {name, p} ->
-      {name, Player.score(p)}
-    end)
+    |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
+    |> Map.put(:dice, Map.drop(dice, game.locked_colors))
   end
 end

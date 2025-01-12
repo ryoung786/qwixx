@@ -31,7 +31,7 @@ defmodule Qwixx.GameTest do
 
   describe "pass" do
     test "only penalize active player", %{game: game} do
-      player = Game.active_player_name(game)
+      player = active_player_name(game)
       other_player = if player == "a", do: "b", else: "a"
 
       assert {:ok, game} = Game.pass(game, player)
@@ -39,7 +39,7 @@ defmodule Qwixx.GameTest do
       assert {:error, :not_active_player} = Game.pass(game, other_player)
       assert {:ok, game} = Game.pass(game, player)
 
-      assert %{^player => %{total: -5}, ^other_player => %{total: 0}} = Game.scores(game)
+      assert %{^player => %{total: -5}, ^other_player => %{total: 0}} = scores(game)
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Qwixx.GameTest do
       {:ok, game} = Game.mark(game, "b", :blue, 9)
 
       assert game.status == :colors
-      assert %{"a" => %{total: 1}} = Game.scores(game)
+      assert %{"a" => %{total: 1}} = scores(game)
     end
 
     test "changes turn after colors", %{game: game} do
@@ -64,7 +64,7 @@ defmodule Qwixx.GameTest do
       {:ok, game} = Game.mark(game, "a", :red, 9)
       {:ok, game} = Game.mark(game, "b", :blue, 9)
 
-      player = Game.active_player_name(game)
+      player = active_player_name(game)
       other_player = if player == "a", do: "b", else: "a"
       c = game.dice.green
 
@@ -73,13 +73,13 @@ defmodule Qwixx.GameTest do
       {:ok, game} = Game.mark(game, player, :green, 5 + c)
 
       assert game.status == :white
-      assert %{^player => %{total: 2}, ^other_player => %{total: 1}} = Game.scores(game)
+      assert %{^player => %{total: 2}, ^other_player => %{total: 1}} = scores(game)
     end
   end
 
   describe "game over" do
     test "4 passes", %{game: game} do
-      active_name = Game.active_player_name(game)
+      active_name = active_player_name(game)
       other_player = if active_name == "a", do: "b", else: "a"
 
       # take 3 pass penalties
@@ -96,12 +96,12 @@ defmodule Qwixx.GameTest do
       # 4th pass, brings score to -20 and ends game
       {:ok, game} = Game.pass(game, active_name)
 
-      assert %{^active_name => %{total: -20}, ^other_player => %{total: 0}} = Game.scores(game)
+      assert %{^active_name => %{total: -20}, ^other_player => %{total: 0}} = scores(game)
       assert game.status == :game_over
     end
 
     test "2 locks by same player", %{game: game} do
-      active_name = Game.active_player_name(game)
+      active_name = active_player_name(game)
       other_player = if active_name == "a", do: "b", else: "a"
 
       # set dice to state we can get 2 12s
@@ -116,12 +116,12 @@ defmodule Qwixx.GameTest do
       {:ok, game} = Game.mark(game, active_name, :red, 12)
       {:ok, game} = Game.pass(game, other_player)
       {:ok, game} = Game.mark(game, active_name, :yellow, 12)
-      assert %{^active_name => %{total: 56}, ^other_player => %{total: 0}} = Game.scores(game)
+      assert %{^active_name => %{total: 56}, ^other_player => %{total: 0}} = scores(game)
       assert game.status == :game_over
     end
 
     test "2 total locks", %{game: game} do
-      active_name = Game.active_player_name(game)
+      active_name = active_player_name(game)
       other_name = if active_name == "a", do: "b", else: "a"
 
       # set dice to state we can get 2 12s
@@ -138,7 +138,7 @@ defmodule Qwixx.GameTest do
       # now red and yellow are both locked and the game is over
       {:ok, game} = Game.mark(game, active_name, :red, 12)
 
-      assert %{^active_name => %{total: 28}, ^other_name => %{total: 28}} = Game.scores(game)
+      assert %{^active_name => %{total: 28}, ^other_name => %{total: 28}} = scores(game)
       assert game.status == :game_over
     end
   end
@@ -150,11 +150,17 @@ defmodule Qwixx.GameTest do
       {:ok, game} = Game.pass(game, "a")
       {:ok, game} = Game.pass(game, "b")
 
-      player = Game.active_player_name(game)
+      player = active_player_name(game)
       {:ok, game} = Game.pass(game, player)
 
       assert game.status == :white
       assert game.dice.red in 1..6
     end
+  end
+
+  defp active_player_name(%Game{turn_order: [player_name | _]}), do: player_name
+
+  defp scores(%Game{players: players}) do
+    Map.new(players, fn {name, p} -> {name, Player.score(p)} end)
   end
 end

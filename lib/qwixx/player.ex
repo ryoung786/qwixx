@@ -2,7 +2,7 @@ defmodule Qwixx.Player do
   @moduledoc false
   alias Qwixx.Scorecard
 
-  defstruct name: "", scorecard: %Scorecard{}
+  defstruct name: nil, scorecard: %Scorecard{}
 
   def mark(%__MODULE__{} = player, color, num) do
     case Scorecard.mark(player.scorecard, color, num) do
