@@ -19,15 +19,15 @@ defmodule QwixxWeb.ConnCase do
 
   using do
     quote do
-      # Import conveniences for testing with connections
-      import Plug.Conn
+      use QwixxWeb, :verified_routes
+
       import Phoenix.ConnTest
+      import Plug.Conn
       import QwixxWeb.ConnCase
-
-      alias QwixxWeb.Router.Helpers, as: Routes
-
       # The default endpoint for testing
       @endpoint QwixxWeb.Endpoint
+
+      # Import conveniences for testing with connections
     end
   end
 

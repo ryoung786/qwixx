@@ -1,22 +1,26 @@
 defmodule Qwixx.Game do
-  alias Qwixx.{Game, Scorecard, Player, Dice, Validation}
+  @moduledoc false
+  alias Qwixx.Game
+  alias Qwixx.Player
+  alias Qwixx.Validation
 
   defstruct players: %{},
             turn_order: [],
             status: :awaiting_start,
-            dice: %Dice{},
+            dice: nil,
+            locked_colors: [],
             turn_actions: %{}
 
   @pass_limit 4
   @locked_color_limit 2
 
   def add_player(%Game{} = game, name) do
-    if name not in Map.keys(game.players) do
+    if name in Map.keys(game.players) do
+      {:error, :player_name_taken}
+    else
       players = Map.put(game.players, name, %Player{name: name})
       added_to_end = game.turn_order ++ [name]
       %{game | players: players, turn_order: added_to_end}
-    else
-      {:error, :player_name_taken}
     end
   end
 
@@ -38,23 +42,32 @@ defmodule Qwixx.Game do
     |> advance()
   end
 
-  defp roll(%Game{} = game), do: %{game | dice: Dice.roll(game)}
+  defp roll(%Game{} = game) do
+    dice = %{
+      red: :rand.uniform(6),
+      yellow: :rand.uniform(6),
+      blue: :rand.uniform(6),
+      green: :rand.uniform(6),
+      white: {:rand.uniform(6), :rand.uniform(6)}
+    }
+
+    %{game | dice: Map.drop(dice, game.locked_colors)}
+  end
 
   def mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- Validation.validate_mark(game, player_name, color, num),
-         player <- game.players[player_name],
+         player = game.players[player_name],
          {:ok, player} <- Player.mark(player, color, num) do
       game = put_in(game.players[player.name], player)
       game = put_in(game.turn_actions[player.name], {color, num})
       {:ok, maybe_advance(game)}
-    else
-      {:error, msg} -> {:error, msg}
     end
   end
 
   def pass(%Game{} = game, player_name) do
-    with {:ok, game} <- Validation.validate_pass(game, player_name),
-         player <- game.players[player_name] do
+    with {:ok, game} <- Validation.validate_pass(game, player_name) do
+      player = game.players[player_name]
+
       cond do
         game.status == :white ->
           pass_on_white_dice(game, player)
@@ -65,8 +78,6 @@ defmodule Qwixx.Game do
         "pass on colored dice, but marked the white dice so it's ok" ->
           {:ok, maybe_advance(game)}
       end
-    else
-      {:error, msg} -> {:error, msg}
     end
   end
 
@@ -76,24 +87,34 @@ defmodule Qwixx.Game do
   end
 
   defp take_pass_penalty(game, player) do
-    with {:ok, player} <- Player.pass(player) do
-      game = put_in(game.players[player.name], player)
-      {:ok, maybe_advance(game)}
-    else
-      {:error, msg} -> {:error, msg}
+    case Player.pass(player) do
+      {:ok, player} ->
+        game = put_in(game.players[player.name], player)
+        {:ok, maybe_advance(game)}
+
+      {:error, msg} ->
+        {:error, msg}
     end
   end
 
   defp maybe_advance(%Game{} = game) do
     everyone_has_made_choice =
-      game.turn_actions
-      |> Enum.all?(fn {_name, action} -> action != :awaiting_choice end)
+      Enum.all?(game.turn_actions, fn {_name, action} -> action != :awaiting_choice end)
 
     if everyone_has_made_choice, do: advance(game), else: game
   end
 
   defp advance(%Game{} = game) do
-    game = game |> enforce_locks()
+    locked_colors =
+      Enum.reduce(game.players, MapSet.new(), fn {_name, %{scorecard: card}}, acc ->
+        acc = if 12 in card.red, do: MapSet.put(acc, :red), else: acc
+        acc = if 12 in card.yellow, do: MapSet.put(acc, :yellow), else: acc
+        acc = if 2 in card.blue, do: MapSet.put(acc, :blue), else: acc
+        acc = if 2 in card.green, do: MapSet.put(acc, :green), else: acc
+        acc
+      end)
+
+    game = %{game | locked_colors: MapSet.to_list(locked_colors)}
 
     cond do
       game_over?(game) -> %{game | status: :game_over}
@@ -114,37 +135,16 @@ defmodule Qwixx.Game do
 
   defp reset_turn_actions(%Game{} = game) do
     turn_actions =
-      game.players
-      |> Enum.map(fn {name, _} -> {name, :awaiting_choice} end)
-      |> Map.new()
+      Map.new(game.players, fn {name, _} -> {name, :awaiting_choice} end)
 
     %{game | turn_actions: turn_actions}
   end
 
-  defp enforce_locks(%Game{} = game) do
-    locked_colors = locked_colors(game)
-
-    players =
-      Enum.map(game.players, fn {name, player} ->
-        player =
-          Enum.reduce(locked_colors, player, fn color, player ->
-            Player.lock_row(player, color)
-          end)
-
-        {name, player}
-      end)
-
-    %{game | players: Map.new(players)}
-  end
-
   defp game_over?(%Game{players: players} = game) do
-    num_locked_colors = locked_colors(game) |> Enum.count()
-
     any_players_hit_pass_limit =
-      players
-      |> Enum.any?(fn {_, %{scorecard: card}} -> card.pass_count >= @pass_limit end)
+      Enum.any?(players, fn {_, %{scorecard: card}} -> card.pass_count >= @pass_limit end)
 
-    any_players_hit_pass_limit or num_locked_colors >= @locked_color_limit
+    any_players_hit_pass_limit || Enum.count(game.locked_colors) >= @locked_color_limit
   end
 
   defp shuffle_player_order(%Game{players: players} = game) do
@@ -152,26 +152,13 @@ defmodule Qwixx.Game do
     %{game | turn_order: Enum.shuffle(names)}
   end
 
-  def locked_colors(%Game{players: players}) when players == %{}, do: []
-
-  def locked_colors(%Game{players: players}) do
-    Enum.reduce(players, [], fn {_name, player}, acc ->
-      locked_colors =
-        Scorecard.rows(player.scorecard)
-        |> Enum.filter(fn {_color, row} -> row.locked end)
-        |> Enum.map(fn {color, _row} -> color end)
-
-      acc ++ locked_colors
-    end)
-    |> Enum.uniq()
-  end
+  def locked_colors(%Game{} = game), do: game.locked_colors
 
   defp reset_scorecards(%Game{players: players} = game) do
     players =
-      Enum.map(players, fn {name, _} ->
+      Map.new(players, fn {name, _} ->
         {name, %Player{name: name}}
       end)
-      |> Map.new()
 
     %{game | players: players}
   end
@@ -179,10 +166,8 @@ defmodule Qwixx.Game do
   def active_player_name(%Game{turn_order: [player_name | _]}), do: player_name
 
   def scores(%Game{players: players}) do
-    players
-    |> Enum.map(fn {name, p} ->
+    Map.new(players, fn {name, p} ->
       {name, Player.score(p)}
     end)
-    |> Map.new()
   end
 end

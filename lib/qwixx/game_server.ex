@@ -1,16 +1,20 @@
 defmodule Qwixx.GameServer do
+  @moduledoc false
   use GenServer, restart: :transient
+
   alias Qwixx.Game
   alias Qwixx.PubSub.Msg
+
   require Logger
 
   defmodule State do
+    @moduledoc false
     defstruct code: nil, game: nil
   end
 
   def start_link(code), do: GenServer.start_link(__MODULE__, code, name: via_tuple(code))
 
-  def new_game_server() do
+  def new_game_server do
     code = generate_code()
 
     case start_server_process(code) do
@@ -115,11 +119,7 @@ defmodule Qwixx.GameServer do
   @impl true
   def init(code), do: {:ok, %State{code: code, game: %Game{}}}
 
-  def game_pid(code) do
-    code
-    |> via_tuple()
-    |> GenServer.whereis()
-  end
+  def game_pid(code), do: code |> via_tuple() |> GenServer.whereis()
 
   defp call(code, command) do
     case game_pid(code) do
@@ -136,14 +136,7 @@ defmodule Qwixx.GameServer do
     })
   end
 
-  # defp cast(code, command) do
-  #   case game_pid(code) do
-  #     pid when is_pid(pid) -> GenServer.cast(pid, command)
-  #     nil -> {:error, :game_not_found}
-  #   end
-  # end
-
-  defp generate_code() do
+  defp generate_code do
     "ABCDEFGHJKMNPQRSTUVWXYZ"
     |> String.graphemes()
     |> Enum.shuffle()
