@@ -1,7 +1,6 @@
 defmodule Qwixx.Validation do
   @moduledoc false
   alias Qwixx.Game
-  alias Qwixx.Player
   alias Qwixx.Scorecard
 
   def validate_mark(%Game{} = game, player_name, color, num) do
@@ -89,9 +88,9 @@ defmodule Qwixx.Validation do
 
   def valid_moves(%Game{} = game, player_name) do
     case Map.get(game.players, player_name) do
-      %Player{} = player ->
+      %Scorecard{} = scorecard ->
         marks =
-          player.scorecard
+          scorecard
           |> Scorecard.rows()
           |> Enum.reduce([], fn {color, _row}, acc ->
             Enum.reduce(2..12, acc, fn i, acc ->

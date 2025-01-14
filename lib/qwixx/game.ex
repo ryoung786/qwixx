@@ -1,7 +1,7 @@
 defmodule Qwixx.Game do
   @moduledoc false
   alias Qwixx.Game
-  alias Qwixx.Player
+  alias Qwixx.Scorecard
   alias Qwixx.Validation
 
   defstruct players: %{},
@@ -19,7 +19,7 @@ defmodule Qwixx.Game do
     if name in Map.keys(game.players) do
       {:error, :player_name_taken}
     else
-      players = Map.put(game.players, name, %Player{name: name})
+      players = Map.put(game.players, name, %Scorecard{})
       added_to_end = game.turn_order ++ [name]
       %{game | players: players, turn_order: added_to_end}
     end
@@ -37,7 +37,7 @@ defmodule Qwixx.Game do
 
   def start(%Game{players: players}) when map_size(players) > 0 do
     players
-    |> Enum.reduce(%Game{}, fn {name, _}, game -> Game.add_player(game, name) end)
+    |> Enum.reduce(%Game{}, fn {name, _}, game -> add_player(game, name) end)
     |> Map.put(:status, :awaiting_start)
     |> Map.put(:turn_order, players |> Map.keys() |> Enum.shuffle())
     |> advance()
@@ -45,25 +45,23 @@ defmodule Qwixx.Game do
 
   def mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- Validation.validate_mark(game, player_name, color, num),
-         player = game.players[player_name],
-         {:ok, player} <- Player.mark(player, color, num) do
-      game = put_in(game.players[player.name], player)
-      game = put_in(game.turn_actions[player.name], {color, num})
+         scorecard = game.players[player_name],
+         {:ok, scorecard} <- Scorecard.mark(scorecard, color, num) do
+      game = put_in(game.players[player_name], scorecard)
+      game = put_in(game.turn_actions[player_name], {color, num})
       {:ok, maybe_advance(game)}
     end
   end
 
   def pass(%Game{} = game, player_name) do
     with {:ok, game} <- Validation.validate_pass(game, player_name) do
-      player = game.players[player_name]
-
       cond do
         game.status == :white ->
-          game = put_in(game.turn_actions[player.name], :pass)
+          game = put_in(game.turn_actions[player_name], :pass)
           {:ok, maybe_advance(game)}
 
         game.turn_actions[player_name] == :pass ->
-          take_pass_penalty(game, player)
+          take_pass_penalty(game, player_name)
 
         "pass on colored dice, but marked the white dice so it's ok" ->
           {:ok, maybe_advance(game)}
@@ -71,10 +69,10 @@ defmodule Qwixx.Game do
     end
   end
 
-  defp take_pass_penalty(game, player) do
-    case Player.pass(player) do
-      {:ok, player} ->
-        game = put_in(game.players[player.name], player)
+  defp take_pass_penalty(game, player_name) do
+    case Scorecard.pass(game.players[player_name]) do
+      {:ok, scorecard} ->
+        game = put_in(game.players[player_name], scorecard)
         {:ok, maybe_advance(game)}
 
       {:error, msg} ->
@@ -91,7 +89,7 @@ defmodule Qwixx.Game do
 
   defp advance(%Game{} = game) do
     locked_colors =
-      Enum.reduce(game.players, MapSet.new(), fn {_name, %{scorecard: card}}, acc ->
+      Enum.reduce(game.players, MapSet.new(), fn {_name, card}, acc ->
         acc = if 12 in card.red, do: MapSet.put(acc, :red), else: acc
         acc = if 12 in card.yellow, do: MapSet.put(acc, :yellow), else: acc
         acc = if 2 in card.blue, do: MapSet.put(acc, :blue), else: acc
@@ -100,7 +98,7 @@ defmodule Qwixx.Game do
       end)
 
     game = %{game | locked_colors: MapSet.to_list(locked_colors)}
-    pass_limit_hit = Enum.any?(game.players, fn {_, %{scorecard: card}} -> card.pass_count >= @pass_limit end)
+    pass_limit_hit = Enum.any?(game.players, fn {_, card} -> card.pass_count >= @pass_limit end)
 
     cond do
       pass_limit_hit || Enum.count(game.locked_colors) >= @locked_color_limit -> %{game | status: :game_over}

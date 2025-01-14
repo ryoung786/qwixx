@@ -2,7 +2,6 @@ defmodule Qwixx.GameTest do
   use ExUnit.Case
 
   alias Qwixx.Game
-  alias Qwixx.Player
   alias Qwixx.Scorecard
 
   setup_all do
@@ -83,11 +82,11 @@ defmodule Qwixx.GameTest do
       other_player = if active_name == "a", do: "b", else: "a"
 
       # take 3 pass penalties
-      player = game.players[active_name]
-      {:ok, player} = Player.pass(player)
-      {:ok, player} = Player.pass(player)
-      {:ok, player} = Player.pass(player)
-      game = put_in(game.players[player.name], player)
+      card = game.players[active_name]
+      {:ok, card} = Scorecard.pass(card)
+      {:ok, card} = Scorecard.pass(card)
+      {:ok, card} = Scorecard.pass(card)
+      game = put_in(game.players[active_name], card)
 
       # both pass on the white dice
       {:ok, game} = Game.pass(game, active_name)
@@ -107,12 +106,8 @@ defmodule Qwixx.GameTest do
       # set dice to state we can get 2 12s
       game = %{game | dice: %{white: {6, 6}, yellow: 6}}
 
-      player = %{
-        game.players[active_name]
-        | scorecard: %Scorecard{red: [2, 3, 4, 5, 6], yellow: [2, 3, 4, 5, 6]}
-      }
-
-      game = put_in(game.players[player.name], player)
+      card = %Scorecard{red: [2, 3, 4, 5, 6], yellow: [2, 3, 4, 5, 6]}
+      game = put_in(game.players[active_name], card)
       {:ok, game} = Game.mark(game, active_name, :red, 12)
       {:ok, game} = Game.pass(game, other_player)
       {:ok, game} = Game.mark(game, active_name, :yellow, 12)
@@ -126,11 +121,8 @@ defmodule Qwixx.GameTest do
 
       # set dice to state we can get 2 12s
       game = %{game | dice: %{white: {6, 6}, red: 6}}
-      player1 = %{game.players[active_name] | scorecard: %Scorecard{red: [2, 3, 4, 5, 6]}}
-      player2 = %{game.players[other_name] | scorecard: %Scorecard{yellow: [2, 3, 4, 5, 6]}}
-
-      game = put_in(game.players[active_name], player1)
-      game = put_in(game.players[other_name], player2)
+      game = put_in(game.players[active_name], %Scorecard{red: [2, 3, 4, 5, 6]})
+      game = put_in(game.players[other_name], %Scorecard{yellow: [2, 3, 4, 5, 6]})
 
       {:ok, game} = Game.mark(game, other_name, :yellow, 12)
       {:ok, game} = Game.pass(game, active_name)
@@ -161,6 +153,6 @@ defmodule Qwixx.GameTest do
   defp active_player_name(%Game{turn_order: [player_name | _]}), do: player_name
 
   defp scores(%Game{players: players}) do
-    Map.new(players, fn {name, p} -> {name, Player.score(p)} end)
+    Map.new(players, fn {name, card} -> {name, Scorecard.score(card)} end)
   end
 end
