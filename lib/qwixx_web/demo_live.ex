@@ -17,7 +17,7 @@ defmodule QwixxWeb.DemoLive do
     ~H"""
     <.dice dice={@game.dice} highlight_white?={@game.status == :white} />
     <br />
-    <div class="bg-gray-200 p-2 rounded-sm relative">
+    <div class="bg-gray-200 p-2 rounded relative">
       <.scorecard scorecard={@game.players["A"].scorecard} player_name="A" />
       <.icon
         :if={@game.turn_order |> List.first() == "A"}
@@ -26,7 +26,7 @@ defmodule QwixxWeb.DemoLive do
       />
     </div>
     <br />
-    <div class="bg-gray-200 p-2 rounded-sm relative">
+    <div class="bg-gray-200 p-2 rounded relative">
       <.scorecard scorecard={@game.players["B"].scorecard} player_name="B" />
       <.icon
         :if={@game.turn_order |> List.first() == "B"}
@@ -78,7 +78,7 @@ defmodule QwixxWeb.DemoLive do
     gs = socket.assigns.gs
 
     socket =
-      case gs |> GameServer.pass(player_name) |> IO.inspect(label: "xxy") do
+      case gs |> GameServer.pass(player_name) do
         {:ok, game} -> assign(socket, game: game)
         {:error, err} -> put_flash(socket, :error, err)
       end

@@ -24,7 +24,8 @@ module.exports = {
       fontFamily: {
         sans: ["Jost", "Inconsolata", ...defaultTheme.fontFamily.sans],
         cbyg: ["Covered By Your Grace"],
-        gaegu: ["Gaegu"]
+        gaegu: ["Gaegu"],
+        landing: ["Fredoka"]
       },
     },
   },

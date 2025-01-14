@@ -19,6 +19,7 @@ defmodule QwixxWeb.Router do
 
     get "/", PageController, :home
 
+    live "/scorecard", ScorecardLive, :index
     live "/demo", DemoLive, :index
     live "/demo/:game_server", DemoLive, :game
   end
