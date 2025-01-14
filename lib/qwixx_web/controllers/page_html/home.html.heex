@@ -15,31 +15,25 @@
       </h1>
     </header>
 
-    <div class="bg-blue-700 hover:scale-105 transform transition duration-300 rounded-lg text-center p-6 w-full max-w-md mt-10 -skew-x-6">
-      <h2 class="text-2xl text-yellow-500 font-semibold">Multiplayer Mode</h2>
-      <p class="text-gray-300 mt-2">Play with friends or family in real-time!</p>
-      <button class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-2 px-4 rounded">
-        Start Multiplayer
-      </button>
-    </div>
+    <.game_mode
+      title="Multiplayer Mode"
+      subtitle="Play with friends or family in real time!"
+      link={~p"/"}
+      link_text="Start Multiplayer"
+    />
 
-    <div class="bg-blue-700 hover:scale-105 transform transition duration-300 rounded-lg text-center p-6 w-full max-w-md -skew-x-6">
-      <h2 class="text-2xl text-yellow-500 font-semibold">Solo Mode</h2>
-      <p class="text-gray-300 mt-2">Challenge yourself and beat your own high scores.</p>
-      <button class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-2 px-4 rounded">
-        Start Solo
-      </button>
-    </div>
+    <.game_mode
+      title="Solo Mode"
+      subtitle="Challenge yourself and beat your own high scores."
+      link={~p"/"}
+      link_text="Start Solo"
+    />
 
-    <div class="bg-blue-700 hover:scale-105 transform transition duration-300 rounded-lg text-center p-6 w-full max-w-md -skew-x-6">
-      <h2 class="text-2xl text-yellow-500 font-semibold">Scorecard Only</h2>
-      <p class="text-gray-300 mt-2">Use a digital scorecard to track your games offline.</p>
-      <a
-        href={~p"/scorecard"}
-        class="inline-block mt-4 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-2 px-4 rounded"
-      >
-        Use Scorecard
-      </a>
-    </div>
+    <.game_mode
+      title="Scorecard Only"
+      subtitle="Use a digital scorecard to track your games offline."
+      link={~p"/scorecard"}
+      link_text="Use Scorecard"
+    />
   </div>
 </div>
