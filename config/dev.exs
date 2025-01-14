@@ -69,3 +69,6 @@ config :qwixx, QwixxWeb.Endpoint,
 # different ports.
 
 config :qwixx, dev_routes: true
+
+# Path to install SaladUI components
+config :salad_ui, components_path: Path.join(File.cwd!(), "lib/qwixx_web/components")

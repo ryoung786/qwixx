@@ -18,6 +18,9 @@ defmodule QwixxWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/demo", DemoLive, :index
+    live "/demo/:game_server", DemoLive, :game
   end
 
   # Other scopes may use custom stacks.

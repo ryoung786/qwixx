@@ -216,8 +216,8 @@ defmodule QwixxWeb.CoreComponents do
 
   ## Examples
 
-      <.button>Send!</.button>
-      <.button phx-click="go" class="ml-2">Send!</.button>
+      <.core_button>Send!</.core_button>
+      <.core_button phx-click="go" class="ml-2">Send!</.core_button>
   """
   attr :type, :string, default: nil
   attr :class, :string, default: nil
@@ -225,7 +225,7 @@ defmodule QwixxWeb.CoreComponents do
 
   slot :inner_block, required: true
 
-  def button(assigns) do
+  def core_button(assigns) do
     ~H"""
     <button
       type={@type}
@@ -589,6 +589,12 @@ defmodule QwixxWeb.CoreComponents do
   attr :class, :string, default: nil
 
   def icon(%{name: "hero-" <> _} = assigns) do
+    ~H"""
+    <span class={[@name, @class]} />
+    """
+  end
+
+  def icon(%{name: "lucide-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
     """

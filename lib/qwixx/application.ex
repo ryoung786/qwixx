@@ -13,6 +13,7 @@ defmodule Qwixx.Application do
       {Phoenix.PubSub, name: Qwixx.PubSub},
       {Registry, keys: :unique, name: Qwixx.GameRegistry},
       {DynamicSupervisor, name: Qwixx.GameSupervisor, strategy: :one_for_one},
+      TwMerge.Cache,
       # Start a worker by calling: Qwixx.Worker.start_link(arg)
       # {Qwixx.Worker, arg},
       # Start to serve requests, typically the last entry

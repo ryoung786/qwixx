@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-1">
+  <.scorecard_row
+    :for={color <- ~w/red yellow green blue/a}
+    color={color}
+    row={Map.get(@scorecard, color)}
+    player_name={@player_name}
+  />
+  <div class="p-2">
+    <div class="points font-cbyg float-left text-2xl leading-none">
+      {Scorecard.score(@scorecard).total}
+    </div>
+    <div class="flex justify-end gap-1">
+      <.pass_block :for={n <- 0..@scorecard.pass_count} :if={n > 0} marked?={true} />
+      <div class="flex gap-1 cursor-pointer" phx-click="pass" phx-value-name={@player_name}>
+        <.pass_block :for={n <- @scorecard.pass_count..4} :if={n < 4} />
+      </div>
+    </div>
+  </div>
+</div>

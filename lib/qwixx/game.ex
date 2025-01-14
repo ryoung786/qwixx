@@ -6,6 +6,7 @@ defmodule Qwixx.Game do
 
   defstruct players: %{},
             turn_order: [],
+            # game status: [:awaiting_start, :white, :colors, :game_over]
             status: :awaiting_start,
             dice: nil,
             locked_colors: [],

@@ -42,11 +42,13 @@ defmodule Qwixx.MixProject do
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons", tag: "v2.1.1", sparse: "optimized", app: false, compile: false, depth: 1},
+      {:lucide, github: "lucide-icons/lucide", tag: "0.471.1", sparse: "icons", app: false, compile: false, depth: 1},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
+      {:salad_ui, "~> 0.14"},
       {:styler, "~> 1.2.1", only: [:dev, :test], runtime: false}
     ]
   end

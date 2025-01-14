@@ -32,9 +32,13 @@ defmodule Qwixx.Scorecard do
     %{rows: Map.new(row_scores), pass: pass_total, total: row_total + pass_total}
   end
 
-  defp score_row({color, row}) do
+  def lock_bonus?(color, row) do
     n = if color in ~w/red yellow/a, do: 12, else: 2
-    bonus = if n in row, do: 1, else: 0
+    n in row
+  end
+
+  defp score_row({color, row}) do
+    bonus = if lock_bonus?(color, row), do: 1, else: 0
     {color, Enum.at(@scoring_scale, Enum.count(row) + bonus)}
   end
 
