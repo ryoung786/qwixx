@@ -37,7 +37,16 @@ jobs:
           key: ${{ runner.os }}-build-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
       - run: mix deps.get
-      - run: mix format --check-formatted
+
+      - name: Generate classes.txt for tailwind
+        run: mix tailwind default
+
+      - name: Compile tailwind_formatter plugin
+        run: mix deps.compile tailwind_formatter --force
+
+      - name: Check code formatting
+        run: mix format --check-formatted
+
       - run: mix test
 
   deploy:
