@@ -78,7 +78,7 @@ defmodule QwixxWeb.DemoLive do
     gs = socket.assigns.gs
 
     socket =
-      case gs |> GameServer.pass(player_name) do
+      case GameServer.pass(gs, player_name) do
         {:ok, game} -> assign(socket, game: game)
         {:error, err} -> put_flash(socket, :error, err)
       end
