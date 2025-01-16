@@ -1,9 +1,8 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Fredoka:wght@300..700&family=Gaegu&family=Inconsolata:wght@200..900&family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Fredoka:wght@300..700&family=Gaegu&family=Inconsolata:wght@200..900&family=Jost:ital,wght@0,100..900;1,100..900&display=swap");
 /* This file is for your main application CSS */
-
 
 @layer base {
   :root {
@@ -62,4 +61,6 @@
   }
 }
 
-body { @apply bg-background text-foreground; }
+body {
+  @apply bg-background text-foreground;
+}
