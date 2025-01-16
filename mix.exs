@@ -69,7 +69,8 @@ defmodule Qwixx.MixProject do
         "esbuild qwixx --minify",
         "phx.digest"
       ],
-      format: ["format", "cmd ./assets/node_modules/.bin/prettier --color -w ."]
+      format: ["format", "cmd --cd assets npx prettier --color -w ."],
+      "format.check": ["format --check-formatted", "cmd --cd assets npx prettier -c ."]
     ]
   end
 end
