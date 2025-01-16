@@ -119,3 +119,6 @@ module.exports = {
     })
   ]
 }
+
+let { extract } = require("../deps/tailwind_formatter/assets/js")
+extract(module.exports, "../_build")

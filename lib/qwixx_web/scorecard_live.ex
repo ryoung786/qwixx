@@ -15,7 +15,7 @@ defmodule QwixxWeb.ScorecardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="bg-gray-200 p-2 rounded relative">
+    <div class="relative rounded bg-gray-200 p-2">
       <.scorecard scorecard={@scorecard} player_name="A" />
     </div>
     """

@@ -49,7 +49,8 @@ defmodule Qwixx.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:salad_ui, "~> 0.14"},
-      {:styler, "~> 1.2.1", only: [:dev, :test], runtime: false}
+      {:styler, "~> 1.2.1", only: [:dev, :test], runtime: false},
+      {:tailwind_formatter, "~> 0.4.2", only: [:dev, :test], runtime: false}
     ]
   end
 

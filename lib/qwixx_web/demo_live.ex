@@ -17,21 +17,21 @@ defmodule QwixxWeb.DemoLive do
     ~H"""
     <.dice dice={@game.dice} highlight_white?={@game.status == :white} />
     <br />
-    <div class="bg-gray-200 p-2 rounded relative">
+    <div class="relative rounded bg-gray-200 p-2">
       <.scorecard scorecard={@game.players["A"].scorecard} player_name="A" />
       <.icon
         :if={@game.turn_order |> List.first() == "A"}
         name="hero-arrow-right"
-        class="absolute -left-8 top-1/2 bg-red-500"
+        class="absolute top-1/2 -left-8 bg-red-500"
       />
     </div>
     <br />
-    <div class="bg-gray-200 p-2 rounded relative">
+    <div class="relative rounded bg-gray-200 p-2">
       <.scorecard scorecard={@game.players["B"].scorecard} player_name="B" />
       <.icon
         :if={@game.turn_order |> List.first() == "B"}
         name="hero-arrow-right"
-        class="absolute -left-8 top-1/2 bg-red-500"
+        class="absolute top-1/2 -left-8 bg-red-500"
       />
     </div>
     """

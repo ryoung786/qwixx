@@ -6,12 +6,12 @@
     player_name={@player_name}
   />
   <div class="p-2">
-    <div class="points font-cbyg float-left text-2xl leading-none">
+    <div class="points float-left font-cbyg text-2xl leading-none">
       {Scorecard.score(@scorecard).total}
     </div>
     <div class="flex justify-end gap-1">
       <.pass_block :for={n <- 0..@scorecard.pass_count} :if={n > 0} marked?={true} />
-      <div class="flex gap-1 cursor-pointer" phx-click="pass" phx-value-name={@player_name}>
+      <div class="flex cursor-pointer gap-1" phx-click="pass" phx-value-name={@player_name}>
         <.pass_block :for={n <- @scorecard.pass_count..4} :if={n < 4} />
       </div>
     </div>

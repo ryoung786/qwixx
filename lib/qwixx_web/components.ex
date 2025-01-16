@@ -43,7 +43,7 @@ defmodule QwixxWeb.Components do
 
     ~H"""
     <div class={["rounded", @light]}>
-      <.icon name={"lucide-dice-#{@n}"} class={"w-10 h-10 #{@class} #{@dark}"} />
+      <.icon name={"lucide-dice-#{@n}"} class={"#{@class} #{@dark} h-10 w-10"} />
     </div>
     """
   end
