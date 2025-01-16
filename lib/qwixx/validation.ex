@@ -1,14 +1,13 @@
 defmodule Qwixx.Validation do
-  alias Qwixx.{Game, Player, Scorecard, Dice}
+  @moduledoc false
+  alias Qwixx.Game
+  alias Qwixx.Scorecard
 
   def validate_mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- validate_shared_action(game, player_name),
          {:ok, game} <- color_is_unlocked(game, color),
-         {:ok, game} <- num_matches_dice(game, color, num),
-         {:ok, game} <- valid_color(game, color) do
-      {:ok, game}
-    else
-      {:error, msg} -> {:error, msg}
+         {:ok, game} <- num_matches_dice(game, color, num) do
+      valid_color(game, color)
     end
   end
 
@@ -20,11 +19,8 @@ defmodule Qwixx.Validation do
     with {:ok, game} <- player_exists(game, player_name),
          {:ok, game} <- game_not_over(game),
          {:ok, game} <- game_has_started(game),
-         {:ok, game} <- only_active_player_use_colors(game, player_name),
-         {:ok, game} <- awaiting_players_move(game, player_name) do
-      {:ok, game}
-    else
-      {:error, msg} -> {:error, msg}
+         {:ok, game} <- only_active_player_use_colors(game, player_name) do
+      awaiting_players_move(game, player_name)
     end
   end
 
@@ -44,7 +40,9 @@ defmodule Qwixx.Validation do
   defp game_has_started(game), do: {:ok, game}
 
   defp only_active_player_use_colors(%Game{status: :colors} = game, player_name) do
-    if Game.active_player_name(game) == player_name,
+    %{turn_order: [active_player_name | _]} = game
+
+    if active_player_name == player_name,
       do: {:ok, game},
       else: {:error, :not_active_player}
   end
@@ -61,49 +59,40 @@ defmodule Qwixx.Validation do
   end
 
   defp color_is_unlocked(%Game{} = game, color) do
-    if color not in Game.locked_colors(game),
-      do: {:ok, game},
-      else: {:error, :color_is_locked}
+    if color in game.locked_colors,
+      do: {:error, :color_is_locked},
+      else: {:ok, game}
   end
 
-  defp num_matches_dice(%Game{status: :white} = game, _color, num) do
-    if num in Dice.all_sums(game.dice.white),
-      do: {:ok, game},
-      else: {:error, :number_not_dice_sum}
-  end
-
-  defp num_matches_dice(%Game{status: :colors} = game, color, num) do
-    color_dice = Map.get(game.dice, color)
-
-    possible_sums =
-      game.dice.white
-      |> Enum.flat_map(fn white_die -> Dice.all_sums([white_die | color_dice]) end)
-
-    if num in possible_sums,
-      do: {:ok, game},
-      else: {:error, :number_not_dice_sum}
+  defp num_matches_dice(%Game{} = game, color, num) do
+    {w1, w2} = game.dice.white
+    c = Map.get(game.dice, color)
+    possible = if game.status == :white, do: [w1 + w2], else: [c + w1, c + w2]
+    if num in possible, do: {:ok, game}, else: {:error, :number_not_dice_sum}
   end
 
   def valid_moves(%Game{} = game, player_name) do
-    with %Player{} = player <- Map.get(game.players, player_name) do
-      marks =
-        Scorecard.rows(player.scorecard)
-        |> Enum.reduce([], fn {color, _row}, acc ->
-          2..12
-          |> Enum.reduce(acc, fn i, acc ->
-            case Game.mark(game, player_name, color, i) do
-              {:ok, _} -> [{color, i} | acc]
-              _ -> acc
-            end
+    case Map.get(game.players, player_name) do
+      %Scorecard{} = scorecard ->
+        marks =
+          scorecard
+          |> Scorecard.rows()
+          |> Enum.reduce([], fn {color, _row}, acc ->
+            Enum.reduce(2..12, acc, fn i, acc ->
+              case Game.mark(game, player_name, color, i) do
+                {:ok, _} -> [{color, i} | acc]
+                _ -> acc
+              end
+            end)
           end)
-        end)
 
-      case Game.pass(game, player_name) do
-        {:ok, _} -> [:pass | marks]
-        _ -> marks
-      end
-    else
-      nil -> []
+        case Game.pass(game, player_name) do
+          {:ok, _} -> [:pass | marks]
+          _ -> marks
+        end
+
+      nil ->
+        []
     end
   end
 end

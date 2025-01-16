@@ -1,22 +1,27 @@
 defmodule Qwixx.Game do
-  alias Qwixx.{Game, Scorecard, Player, Dice, Validation}
+  @moduledoc false
+  alias Qwixx.Game
+  alias Qwixx.Scorecard
+  alias Qwixx.Validation
 
   defstruct players: %{},
             turn_order: [],
+            # game status: [:awaiting_start, :white, :colors, :game_over]
             status: :awaiting_start,
-            dice: %Dice{},
+            dice: nil,
+            locked_colors: [],
             turn_actions: %{}
 
   @pass_limit 4
   @locked_color_limit 2
 
   def add_player(%Game{} = game, name) do
-    if name not in Map.keys(game.players) do
-      players = Map.put(game.players, name, %Player{name: name})
+    if name in Map.keys(game.players) do
+      {:error, :player_name_taken}
+    else
+      players = Map.put(game.players, name, %Scorecard{})
       added_to_end = game.turn_order ++ [name]
       %{game | players: players, turn_order: added_to_end}
-    else
-      {:error, :player_name_taken}
     end
   end
 
@@ -30,159 +35,91 @@ defmodule Qwixx.Game do
     end
   end
 
-  def start(%Game{players: players} = game) when map_size(players) > 0 do
-    game
+  def start(%Game{players: players}) when map_size(players) > 0 do
+    players
+    |> Enum.reduce(%Game{}, fn {name, _}, game -> add_player(game, name) end)
     |> Map.put(:status, :awaiting_start)
-    |> reset_scorecards()
-    |> shuffle_player_order()
+    |> Map.put(:turn_order, players |> Map.keys() |> Enum.shuffle())
     |> advance()
   end
 
-  defp roll(%Game{} = game), do: %{game | dice: Dice.roll(game)}
-
   def mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- Validation.validate_mark(game, player_name, color, num),
-         player <- game.players[player_name],
-         {:ok, player} <- Player.mark(player, color, num) do
-      game = put_in(game.players[player.name], player)
-      game = put_in(game.turn_actions[player.name], {color, num})
+         scorecard = game.players[player_name],
+         {:ok, scorecard} <- Scorecard.mark(scorecard, color, num) do
+      game = put_in(game.players[player_name], scorecard)
+      game = put_in(game.turn_actions[player_name], {color, num})
       {:ok, maybe_advance(game)}
-    else
-      {:error, msg} -> {:error, msg}
     end
   end
 
   def pass(%Game{} = game, player_name) do
-    with {:ok, game} <- Validation.validate_pass(game, player_name),
-         player <- game.players[player_name] do
+    with {:ok, game} <- Validation.validate_pass(game, player_name) do
       cond do
         game.status == :white ->
-          pass_on_white_dice(game, player)
+          game = put_in(game.turn_actions[player_name], :pass)
+          {:ok, maybe_advance(game)}
 
         game.turn_actions[player_name] == :pass ->
-          take_pass_penalty(game, player)
+          take_pass_penalty(game, player_name)
 
         "pass on colored dice, but marked the white dice so it's ok" ->
           {:ok, maybe_advance(game)}
       end
-    else
-      {:error, msg} -> {:error, msg}
     end
   end
 
-  defp pass_on_white_dice(game, player) do
-    game = put_in(game.turn_actions[player.name], :pass)
-    {:ok, maybe_advance(game)}
-  end
+  defp take_pass_penalty(game, player_name) do
+    case Scorecard.pass(game.players[player_name]) do
+      {:ok, scorecard} ->
+        game = put_in(game.players[player_name], scorecard)
+        {:ok, maybe_advance(game)}
 
-  defp take_pass_penalty(game, player) do
-    with {:ok, player} <- Player.pass(player) do
-      game = put_in(game.players[player.name], player)
-      {:ok, maybe_advance(game)}
-    else
-      {:error, msg} -> {:error, msg}
+      {:error, msg} ->
+        {:error, msg}
     end
   end
 
   defp maybe_advance(%Game{} = game) do
     everyone_has_made_choice =
-      game.turn_actions
-      |> Enum.all?(fn {_name, action} -> action != :awaiting_choice end)
+      Enum.all?(game.turn_actions, fn {_name, action} -> action != :awaiting_choice end)
 
     if everyone_has_made_choice, do: advance(game), else: game
   end
 
   defp advance(%Game{} = game) do
-    game = game |> enforce_locks()
+    locked_colors =
+      Enum.reduce(game.players, MapSet.new(), fn {_name, card}, acc ->
+        acc = if 12 in card.red, do: MapSet.put(acc, :red), else: acc
+        acc = if 12 in card.yellow, do: MapSet.put(acc, :yellow), else: acc
+        acc = if 2 in card.blue, do: MapSet.put(acc, :blue), else: acc
+        acc = if 2 in card.green, do: MapSet.put(acc, :green), else: acc
+        acc
+      end)
+
+    game = %{game | locked_colors: MapSet.to_list(locked_colors)}
+    pass_limit_hit = Enum.any?(game.players, fn {_, card} -> card.pass_count >= @pass_limit end)
 
     cond do
-      game_over?(game) -> %{game | status: :game_over}
+      pass_limit_hit || Enum.count(game.locked_colors) >= @locked_color_limit -> %{game | status: :game_over}
       game.status == :white -> %{game | status: :colors}
       true -> next_turn(game)
     end
   end
 
-  defp next_turn(game) do
-    game = %{game | status: :white}
-    [a | rest] = game.turn_order
+  defp next_turn(%{turn_order: [a | rest]} = game) do
+    dice = %{
+      red: :rand.uniform(6),
+      yellow: :rand.uniform(6),
+      blue: :rand.uniform(6),
+      green: :rand.uniform(6),
+      white: {:rand.uniform(6), :rand.uniform(6)}
+    }
 
     game
+    |> Map.put(:status, :white)
     |> Map.put(:turn_order, rest ++ [a])
-    |> reset_turn_actions()
-    |> roll()
-  end
-
-  defp reset_turn_actions(%Game{} = game) do
-    turn_actions =
-      game.players
-      |> Enum.map(fn {name, _} -> {name, :awaiting_choice} end)
-      |> Map.new()
-
-    %{game | turn_actions: turn_actions}
-  end
-
-  defp enforce_locks(%Game{} = game) do
-    locked_colors = locked_colors(game)
-
-    players =
-      Enum.map(game.players, fn {name, player} ->
-        player =
-          Enum.reduce(locked_colors, player, fn color, player ->
-            Player.lock_row(player, color)
-          end)
-
-        {name, player}
-      end)
-
-    %{game | players: Map.new(players)}
-  end
-
-  defp game_over?(%Game{players: players} = game) do
-    num_locked_colors = locked_colors(game) |> Enum.count()
-
-    any_players_hit_pass_limit =
-      players
-      |> Enum.any?(fn {_, %{scorecard: card}} -> card.pass_count >= @pass_limit end)
-
-    any_players_hit_pass_limit or num_locked_colors >= @locked_color_limit
-  end
-
-  defp shuffle_player_order(%Game{players: players} = game) do
-    names = Map.keys(players)
-    %{game | turn_order: Enum.shuffle(names)}
-  end
-
-  def locked_colors(%Game{players: players}) when players == %{}, do: []
-
-  def locked_colors(%Game{players: players}) do
-    Enum.reduce(players, [], fn {_name, player}, acc ->
-      locked_colors =
-        Scorecard.rows(player.scorecard)
-        |> Enum.filter(fn {_color, row} -> row.locked end)
-        |> Enum.map(fn {color, _row} -> color end)
-
-      acc ++ locked_colors
-    end)
-    |> Enum.uniq()
-  end
-
-  defp reset_scorecards(%Game{players: players} = game) do
-    players =
-      Enum.map(players, fn {name, _} ->
-        {name, %Player{name: name}}
-      end)
-      |> Map.new()
-
-    %{game | players: players}
-  end
-
-  def active_player_name(%Game{turn_order: [player_name | _]}), do: player_name
-
-  def scores(%Game{players: players}) do
-    players
-    |> Enum.map(fn {name, p} ->
-      {name, Player.score(p)}
-    end)
-    |> Map.new()
+    |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
+    |> Map.put(:dice, Map.drop(dice, game.locked_colors))
   end
 end

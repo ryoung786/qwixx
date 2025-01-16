@@ -1,7 +1,9 @@
 defmodule Qwixx.PubSub.Msg do
-  defstruct ~w(event game data)a
-end
+  @moduledoc false
+  defstruct ~w/event game data/a
 
-defmodule Qwixx.PubSub.Msg.Mark do
-  defstruct ~w(player_name color number)a
+  defmodule Mark do
+    @moduledoc false
+    defstruct ~w/player_name color number/a
+  end
 end

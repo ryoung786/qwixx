@@ -1,0 +1,30 @@
+<% {range, bg_color, fg_color, txt_color} =
+  case @color do
+    :red -> {2..12, "bg-red-600", "bg-red-100", "text-red-600"}
+    :yellow -> {2..12, "bg-amber-400", "bg-amber-50", "text-amber-400"}
+    :blue -> {12..2//-1, "bg-blue-600", "bg-blue-100", "text-blue-600"}
+    :green -> {12..2//-1, "bg-green-600", "bg-green-100", "text-green-600"}
+  end %>
+
+<div class={["rounded grid grid-cols-12 gap-1 p-2", bg_color]}>
+  <div
+    :for={n <- range}
+    class={[
+      "cursor-pointer relative rounded-lg flex justify-center items-center px-1 py-1",
+      fg_color
+    ]}
+    phx-click={JS.push("mark", value: %{name: @player_name, color: @color, num: n})}
+  >
+    <span class={["text-3xl", txt_color]}>{n}</span>
+    <span :if={n in @row} class="text-5xl text-black font-cbyg font-bold absolute">X</span>
+  </div>
+  <div class={["relative rounded-lg  flex justify-center items-center p-2", fg_color]}>
+    <.icon name="hero-lock-closed-solid" class={txt_color} />
+    <span
+      :if={Scorecard.lock_bonus?(@color, @row)}
+      class="text-5xl text-black font-cbyg font-bold absolute"
+    >
+      X
+    </span>
+  </div>
+</div>

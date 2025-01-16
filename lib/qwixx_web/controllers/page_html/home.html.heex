@@ -1,0 +1,39 @@
+<.flash_group flash={@flash} />
+<div
+  class="font-landing bg-blue-900 text-white bg-cover bg-no-repeat bg-center bg-fixed relative overflow-hidden min-h-[100dvh]"
+  style={"background-image: url('#{~p"/images/explosion.png"}');"}
+>
+  <img
+    src={~p"/images/dice2.png"}
+    alt="Dice Rolling"
+    class="absolute top-0 left-1/2 max-w-screen-md"
+  />
+  <div class="container mx-auto px-4 py-12 flex flex-col items-center gap-8 relative ">
+    <header class="text-center z-10 mt-6">
+      <h1 class="text-4xl font-bold text-yellow-400 [text-shadow:_-3px_5px_0_rgb(0_0_0_/_90%)]">
+        Welcome to Qwixx Online!
+      </h1>
+    </header>
+
+    <.game_mode
+      title="Multiplayer Mode"
+      subtitle="Play with friends or family in real time!"
+      link={~p"/"}
+      link_text="Start Multiplayer"
+    />
+
+    <.game_mode
+      title="Solo Mode"
+      subtitle="Challenge yourself and beat your own high scores."
+      link={~p"/"}
+      link_text="Start Solo"
+    />
+
+    <.game_mode
+      title="Scorecard Only"
+      subtitle="Use a digital scorecard to track your games offline."
+      link={~p"/scorecard"}
+      link_text="Use Scorecard"
+    />
+  </div>
+</div>

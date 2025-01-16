@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: [25.0]
-        elixir: [1.17.0]
+        otp: [27.0]
+        elixir: [1.18.1]
 
     steps:
       - uses: actions/checkout@v2
@@ -59,8 +59,8 @@ jobs:
           fetch-depth: 0
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: 25.0
-          elixir-version: 1.14.0
+          otp-version: 27.0
+          elixir-version: 1.18.1
           experimental-otp: true
       - run: mix deps.get --only prod
       - run: mix compile
@@ -84,5 +84,6 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           USERNAME: ${{ secrets.DEPLOY_USER }}
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          # sudo systemctl restart qwixx.service
           script: |
-            sudo systemctl restart qwixx.service
+            echo "deployed qwixx, not starting service"

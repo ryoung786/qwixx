@@ -1,58 +1,46 @@
 defmodule Qwixx.Scorecard do
-  alias Qwixx.Scorecard
-  alias Qwixx.ScorecardRow, as: Row
+  @moduledoc false
+  alias __MODULE__
 
-  @colors ~w(red yellow blue green)a
-  @pass_score -5
+  @colors ~w/red yellow blue green/a
+  @locks [{:red, 12}, {:yellow, 12}, {:green, 2}, {:blue, 2}]
+  @scoring_scale [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78]
+  @pass_multiplier -5
   @pass_limit 4
 
-  defstruct red: Row.new(:red),
-            yellow: Row.new(:yellow),
-            blue: Row.new(:blue),
-            green: Row.new(:green),
-            pass_count: 0
-
-  def mark(%Scorecard{} = _scorecard, color, _num) when color not in @colors do
-    {:error, [:invalid_color]}
-  end
+  defstruct red: [], yellow: [], blue: [], green: [], pass_count: 0
 
   def mark(%Scorecard{} = scorecard, color, num) do
     row = Map.get(scorecard, color)
 
-    with {:ok, row} <- Row.mark(row, num) do
-      {:ok, Map.put(scorecard, color, row)}
-    else
-      {:error, reasons} -> {:error, reasons}
+    cond do
+      num in row -> {:error, :already_marked}
+      color in ~w/red yellow/a && num < Enum.max(row, fn -> -1 end) -> {:error, :left_to_right}
+      color in ~w/blue green/a && num > Enum.min(row, fn -> 99 end) -> {:error, :left_to_right}
+      {color, num} in @locks && Enum.count(row) < 5 -> {:error, :lock_min}
+      true -> {:ok, Map.put(scorecard, color, [num | row])}
     end
   end
 
-  def mark!(%Scorecard{} = scorecard, color, num) do
-    {:ok, scorecard} = mark(scorecard, color, num)
-    scorecard
-  end
-
-  def pass(%Scorecard{pass_count: num}) when num >= @pass_limit, do: {:error, :at_pass_limit}
-
-  def pass(%Scorecard{pass_count: num} = scorecard),
-    do: {:ok, %{scorecard | pass_count: num + 1}}
+  def pass(%Scorecard{pass_count: num}) when num > @pass_limit, do: {:error, :at_pass_limit}
+  def pass(%Scorecard{pass_count: num} = scorecard), do: {:ok, %{scorecard | pass_count: num + 1}}
 
   def score(%Scorecard{} = scorecard) do
-    row_scores =
-      scorecard
-      |> Map.from_struct()
-      |> Map.take(@colors)
-      |> Enum.map(fn {color, row} -> {color, Row.score(row)} end)
-
-    pass_total = scorecard.pass_count * @pass_score
-
-    row_total = Enum.reduce(row_scores, 0, fn {_, score}, sum -> sum + score end)
+    row_scores = scorecard |> Map.take(@colors) |> Enum.map(&score_row/1)
+    pass_total = scorecard.pass_count * @pass_multiplier
+    row_total = row_scores |> Enum.map(&elem(&1, 1)) |> Enum.sum()
     %{rows: Map.new(row_scores), pass: pass_total, total: row_total + pass_total}
   end
 
-  def rows(%Scorecard{} = scorecard), do: Map.take(scorecard, @colors)
-
-  def lock_row(%Scorecard{} = scorecard, color) do
-    row = Map.get(scorecard, color) |> Row.lock()
-    Map.put(scorecard, color, row)
+  def lock_bonus?(color, row) do
+    n = if color in ~w/red yellow/a, do: 12, else: 2
+    n in row
   end
+
+  defp score_row({color, row}) do
+    bonus = if lock_bonus?(color, row), do: 1, else: 0
+    {color, Enum.at(@scoring_scale, Enum.count(row) + bonus)}
+  end
+
+  def rows(%Scorecard{} = scorecard), do: Map.take(scorecard, @colors)
 end
