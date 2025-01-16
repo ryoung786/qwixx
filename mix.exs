@@ -62,7 +62,7 @@ defmodule Qwixx.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing", "cmd npm install --prefix assets"],
       "assets.build": ["tailwind qwixx", "esbuild qwixx"],
       "assets.deploy": [
         "cmd --cd assets npm ci --only=prod",

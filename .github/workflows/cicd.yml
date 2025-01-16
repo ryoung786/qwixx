@@ -63,9 +63,7 @@ jobs:
           experimental-otp: true
       - run: mix deps.get --only prod
       - run: mix compile
-      - run: npm install --prefix ./assets
-      - run: npm run deploy --prefix ./assets
-      - run: mix phx.digest
+      - run: assets.deploy
       - run: mix release
 
       - name: Copying release to prod server
