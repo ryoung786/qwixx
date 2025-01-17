@@ -8,6 +8,7 @@ defmodule Qwixx.Scorecard do
   @pass_multiplier -5
   @pass_limit 4
 
+  @derive Jason.Encoder
   defstruct red: [], yellow: [], blue: [], green: [], pass_count: 0
 
   def mark(%Scorecard{} = scorecard, color, num) do

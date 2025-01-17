@@ -1,4 +1,5 @@
 import { animate } from "motion";
+import UI from "./qwixx/ui";
 
 export default {
   pageTransition: (path) => {
@@ -12,4 +13,6 @@ export default {
 
     return false;
   },
+
+  UI: UI,
 };

@@ -18,7 +18,7 @@ defmodule QwixxWeb.DemoLive do
     <.dice dice={@game.dice} highlight_white?={@game.status == :white} />
     <br />
     <div class="relative rounded bg-gray-200 p-2">
-      <.scorecard scorecard={@game.players["A"].scorecard} player_name="A" />
+      <.scorecard scorecard={@game.players["A"]} player_name="A" />
       <.icon
         :if={@game.turn_order |> List.first() == "A"}
         name="hero-arrow-right"
@@ -27,7 +27,7 @@ defmodule QwixxWeb.DemoLive do
     </div>
     <br />
     <div class="relative rounded bg-gray-200 p-2">
-      <.scorecard scorecard={@game.players["B"].scorecard} player_name="B" />
+      <.scorecard scorecard={@game.players["B"]} player_name="B" />
       <.icon
         :if={@game.turn_order |> List.first() == "B"}
         name="hero-arrow-right"
@@ -52,6 +52,7 @@ defmodule QwixxWeb.DemoLive do
   @impl true
   def handle_event("new-game", _, socket) do
     gs = GameServer.new_game_server()
+    Phoenix.PubSub.subscribe(Qwixx.PubSub, "game:#{gs}")
     GameServer.add_player(gs, "A")
     GameServer.add_player(gs, "B")
     GameServer.start_game(gs)
@@ -84,5 +85,11 @@ defmodule QwixxWeb.DemoLive do
       end
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(%Qwixx.PubSub.Msg{} = msg, socket) do
+    IO.inspect(msg, label: "[xxx] DemoLive msg received")
+    {:noreply, push_event(socket, "game-events", msg.game)}
   end
 end

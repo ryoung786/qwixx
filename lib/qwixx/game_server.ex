@@ -129,6 +129,8 @@ defmodule Qwixx.GameServer do
   end
 
   defp broadcast(code, game, event, data \\ nil) do
+    IO.inspect({event, data}, label: "[xxx] broadcasting")
+
     Phoenix.PubSub.broadcast(Qwixx.PubSub, "game:#{code}", %Msg{
       event: event,
       data: data,
