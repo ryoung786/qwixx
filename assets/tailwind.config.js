@@ -1,19 +1,17 @@
-// See the Tailwind configuration guide for advanced usage
-// https://tailwindcss.com/docs/configuration
+/** @type {import('tailwindcss').Config} */
 
 const plugin = require("tailwindcss/plugin");
 const defaultTheme = require("tailwindcss/defaultTheme");
 const fs = require("fs");
 const path = require("path");
 
-module.exports = {
+export default {
   content: [
     "../deps/salad_ui/lib/**/*.ex",
     "./js/**/*.js",
     "../lib/qwixx_web.ex",
     "../lib/qwixx_web/**/*.*ex",
   ],
-
   safelist: [
     "lucide-dice-1",
     "lucide-dice-2",
