@@ -63,7 +63,7 @@ jobs:
           experimental-otp: true
       - run: mix deps.get --only prod
       - run: mix compile
-      - run: assets.deploy
+      - run: mix assets.deploy
       - run: mix release
 
       - name: Copying release to prod server
