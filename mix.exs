@@ -65,7 +65,7 @@ defmodule Qwixx.MixProject do
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing", "cmd npm install --prefix assets"],
       "assets.build": ["tailwind qwixx", "esbuild qwixx"],
       "assets.deploy": [
-        "cmd --cd assets npm ci --only=prod",
+        "cmd --cd assets npm ci",
         "tailwind qwixx --minify",
         "esbuild qwixx --minify",
         "phx.digest"
