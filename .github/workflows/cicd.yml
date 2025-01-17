@@ -66,21 +66,22 @@ jobs:
       - run: mix assets.deploy
       - run: mix release
 
-      - name: Copying release to prod server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "_build/prod/rel/qwixx/"
-          target: "${{ secrets.DEPLOY_DIR }}"
+      # Don't actually deploy right now as we're actively developing
 
-      - name: Starting web service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          USERNAME: ${{ secrets.DEPLOY_USER }}
-          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          # sudo systemctl restart qwixx.service
-          script: |
-            echo "deployed qwixx, not starting service"
+      # - name: Copying release to prod server
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.DEPLOY_HOST }}
+      #     username: ${{ secrets.DEPLOY_USER }}
+      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     source: "_build/prod/rel/qwixx/"
+      #     target: "${{ secrets.DEPLOY_DIR }}"
+
+      # - name: Starting web service
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.DEPLOY_HOST }}
+      #     USERNAME: ${{ secrets.DEPLOY_USER }}
+      #     KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     script: |
+      #       sudo systemctl restart qwixx.service
