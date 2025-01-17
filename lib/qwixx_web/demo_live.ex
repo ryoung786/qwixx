@@ -67,7 +67,7 @@ defmodule QwixxWeb.DemoLive do
 
     socket =
       case GameServer.mark(gs, name, color, num) do
-        {:ok, game} -> assign(socket, game: game)
+        {:ok, _game} -> socket
         {:error, err} -> put_flash(socket, :error, err)
       end
 
@@ -80,7 +80,7 @@ defmodule QwixxWeb.DemoLive do
 
     socket =
       case GameServer.pass(gs, player_name) do
-        {:ok, game} -> assign(socket, game: game)
+        {:ok, _game} -> socket
         {:error, err} -> put_flash(socket, :error, err)
       end
 

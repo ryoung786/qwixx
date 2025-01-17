@@ -1,9 +1,12 @@
 <div class="flex gap-6">
-  <div class={["flex gap-1", @highlight_white? && "border-b-2 border-pink-400"]}>
+  <div class={["flex gap-1", @highlight_white? && "border-b-2 border-pink-400"]} data-dice="white">
     <% {w1, w2} = @dice.white %>
     <.dice_icon n={w1} /><.dice_icon n={w2} />
   </div>
-  <div class={["flex gap-1", !@highlight_white? && "border-b-2 border-pink-400"]}>
+  <div
+    class={["flex gap-1", !@highlight_white? && "border-b-2 border-pink-400"]}
+    data-dice="colors"
+  >
     <.dice_icon :if={Map.get(@dice, :red)} color={:red} n={@dice.red} />
     <.dice_icon :if={Map.get(@dice, :yellow)} color={:yellow} n={@dice.yellow} />
     <.dice_icon :if={Map.get(@dice, :green)} color={:green} n={@dice.green} />

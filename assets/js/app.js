@@ -55,5 +55,6 @@ window.addEventListener("phx:js-exec", ({ detail }) => {
 });
 
 window.addEventListener("phx:game-events", (e) => {
+  console.log("app.js event listener", e);
   qwixx.UI.handle_event(e);
 });
