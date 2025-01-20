@@ -34,6 +34,7 @@ defmodule QwixxWeb.DemoLive do
         class="absolute top-1/2 -left-8 bg-red-500"
       />
     </div>
+    <.templates />
     """
   end
 
@@ -89,7 +90,6 @@ defmodule QwixxWeb.DemoLive do
 
   @impl true
   def handle_info(%Qwixx.PubSub.Msg{} = msg, socket) do
-    IO.inspect(msg, label: "[xxx] DemoLive msg received")
     {:noreply, push_event(socket, "game-events", msg.game)}
   end
 end

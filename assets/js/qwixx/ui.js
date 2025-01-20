@@ -44,8 +44,9 @@ function mark(player, color, num) {
   let div = document.querySelector(
     `.scorecard[data-player='${player}'] [data-color='${color}'] [data-num='${num}']`,
   );
-  let span = `<span class="absolute font-cbyg text-5xl font-bold text-black">X</span>`;
-  div.insertAdjacentHTML("beforeend", span);
+  const template = document.getElementById("tpl-mark");
+  const clone = template.content.cloneNode(true);
+  div.appendChild(clone);
 }
 
 function highlight_dice(group) {
