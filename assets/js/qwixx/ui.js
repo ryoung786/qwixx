@@ -1,3 +1,4 @@
+import { animate } from "motion";
 import Game from "./game";
 let event_index = 0;
 let game = new Game();
@@ -14,27 +15,25 @@ function process(event, data, new_game) {
       console.log("player removed event processed", data);
     } else if (event == "status_changed" && data == "white") {
       // Game started! animation
-      console.log("Roll those dice", new_game.dice);
-      highlight_dice("white");
+      // roll_dice(game.dice);
+      // highlight_dice("white");
     }
   } else {
     if (event == "status_changed" && data == "colors") {
-      // Highlight color dice
       highlight_dice("colors");
     }
 
     if (event == "status_changed" && data == "white") {
-      // Highlight color dice
+      roll_dice(game.dice, new_game.dice);
       highlight_dice("white");
     }
 
     if (event == "mark") {
-      // Mark DOM
       mark(data.player, data.color, data.num);
     }
 
     if (event == "pass") {
-      // Mark DOM
+      // TODO
       console.log("PASS", data);
     }
   }
@@ -60,6 +59,36 @@ function highlight_dice(group) {
     white.classList.add("border-b-2", "border-pink-400");
     colors.classList.remove("border-b-2", "border-pink-400");
   }
+}
+
+function roll_dice(old_dice, new_dice) {
+  let dice_el = document.getElementById("dice");
+  const template = document.getElementById("tpl-roll");
+  const clone = template.content.cloneNode(true);
+  dice_el.appendChild(clone);
+  let anim = document.getElementById("rolling-animation");
+  const sequence = [
+    [anim, { opacity: 1 }],
+    [anim, { opacity: 1 }, { duration: 2.0 }],
+    [anim, { opacity: 0 }],
+  ];
+
+  setTimeout(() => {
+    toggle_dice(dice_el, "#w1 span", old_dice?.white[0], new_dice?.white[0]);
+    toggle_dice(dice_el, "#w2 span", old_dice?.white[1], new_dice?.white[1]);
+    toggle_dice(dice_el, "#red span", old_dice?.red, new_dice?.red);
+    toggle_dice(dice_el, "#yellow span", old_dice?.yellow, new_dice?.yellow);
+    toggle_dice(dice_el, "#green span", old_dice?.green, new_dice?.green);
+    toggle_dice(dice_el, "#blue span", old_dice?.blue, new_dice?.blue);
+  }, 1000);
+
+  animate(sequence).then(() => {
+    dice_el.removeChild(anim);
+  });
+}
+function toggle_dice(el, query, old_n, new_n) {
+  el.querySelector(query).classList?.remove(`lucide-dice-${old_n}`);
+  el.querySelector(query).classList?.add(`lucide-dice-${new_n}`);
 }
 
 export default {

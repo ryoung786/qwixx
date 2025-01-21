@@ -25,6 +25,7 @@ defmodule QwixxWeb.Components do
   attr :dice, :map, required: true
   def dice(assigns)
 
+  attr :id, :string, required: true
   attr :n, :integer, required: true
   attr :color, :atom, default: :white
   attr :class, :string, default: nil
@@ -42,7 +43,7 @@ defmodule QwixxWeb.Components do
     assigns = assign(assigns, light: light, dark: dark)
 
     ~H"""
-    <div class={["rounded", @light]}>
+    <div id={@id} class={["rounded", @light]}>
       <.icon name={"lucide-dice-#{@n}"} class={"#{@class} #{@dark} h-10 w-10"} />
     </div>
     """
