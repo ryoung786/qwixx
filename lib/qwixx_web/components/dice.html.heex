@@ -1,10 +1,13 @@
 <div id="dice" class="flex gap-6 justify-center relative">
-  <div class={["flex gap-1", @highlight_white? && "border-b-2 border-pink-400"]} data-dice="white">
+  <div
+    class={["flex gap-1", @highlight == :white && "border-b-2 border-pink-400"]}
+    data-dice="white"
+  >
     <% {w1, w2} = @dice.white %>
     <.dice_icon id="w1" n={w1} /><.dice_icon id="w2" n={w2} />
   </div>
   <div
-    class={["flex gap-1", !@highlight_white? && "border-b-2 border-pink-400"]}
+    class={["flex gap-1", @highlight == :colors && "border-b-2 border-pink-400"]}
     data-dice="colors"
   >
     <.dice_icon :if={Map.get(@dice, :red)} id="red" color={:red} n={@dice.red} />

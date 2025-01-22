@@ -15,7 +15,7 @@ defmodule QwixxWeb.DemoLive do
   @impl true
   def render(%{live_action: :game} = assigns) do
     ~H"""
-    <.dice dice={@game.dice} highlight_white?={@game.status == :white} />
+    <.dice dice={@game.dice} highlight={@game.status} />
     <br />
     <div class="relative rounded bg-gray-200 p-2">
       <.scorecard scorecard={@game.players["A"]} player_name="A" />

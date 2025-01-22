@@ -1,6 +1,8 @@
 defmodule QwixxWeb.Router do
   use QwixxWeb, :router
 
+  alias QwixxWeb.Plugs.RequireGame
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -14,14 +16,27 @@ defmodule QwixxWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :game do
+    plug RequireGame
+  end
+
   scope "/", QwixxWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :home
 
     live "/scorecard", ScorecardLive, :index
     live "/demo", DemoLive, :index
     live "/demo/:game_server", DemoLive, :game
+  end
+
+  scope "/games/:code", QwixxWeb do
+    pipe_through [:browser, :game]
+
+    live_session :default, on_mount: RequireGame do
+      live "/", MultiplayerLive
+      get "/join", JoinController, :join
+    end
   end
 
   # Other scopes may use custom stacks.

@@ -1,5 +1,6 @@
 defmodule Qwixx.Game do
   @moduledoc false
+  alias Qwixx.Dice
   alias Qwixx.Game
   alias Qwixx.Scorecard
   alias Qwixx.Validation
@@ -9,7 +10,7 @@ defmodule Qwixx.Game do
             turn_order: [],
             # game status: [:awaiting_start, :white, :colors, :game_over]
             status: :awaiting_start,
-            dice: nil,
+            dice: %Dice{},
             locked_colors: [],
             turn_actions: %{},
             event_history: []
@@ -128,16 +129,8 @@ defmodule Qwixx.Game do
   end
 
   defp next_turn(%{turn_order: [a | rest]} = game) do
-    dice = %{
-      red: :rand.uniform(6),
-      yellow: :rand.uniform(6),
-      blue: :rand.uniform(6),
-      green: :rand.uniform(6),
-      white: {:rand.uniform(6), :rand.uniform(6)}
-    }
-
     game
-    |> Map.put(:dice, Map.drop(dice, game.locked_colors))
+    |> Map.put(:dice, Map.drop(Dice.roll(), game.locked_colors))
     |> Map.put(:status, :white)
     |> Map.put(:turn_order, rest ++ [a])
     |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))

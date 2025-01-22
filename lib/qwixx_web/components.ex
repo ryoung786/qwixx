@@ -21,7 +21,7 @@ defmodule QwixxWeb.Components do
   attr :marked?, :boolean, default: false
   def pass_block(assigns)
 
-  attr :highlight_white?, :boolean, default: true
+  attr :highlight, :atom, default: nil
   attr :dice, :map, required: true
   def dice(assigns)
 
