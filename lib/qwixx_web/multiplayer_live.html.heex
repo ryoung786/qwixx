@@ -14,7 +14,7 @@
     </div>
   </nav>
   <main>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4" data-active-player={@player_name}>
       <.dice dice={@game.dice} highlight={@game.status} />
       <div class="relative rounded bg-gray-200 p-2">
         <.scorecard scorecard={@game.players[@player_name]} player_name={@player_name} />

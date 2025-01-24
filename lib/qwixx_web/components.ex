@@ -3,6 +3,7 @@ defmodule QwixxWeb.Components do
   use Phoenix.Component
 
   import QwixxWeb.CoreComponents
+  import SaladUI.Button
 
   alias Phoenix.LiveView.JS
   alias Qwixx.Scorecard

@@ -39,6 +39,7 @@ defmodule Qwixx.GameServer do
 
   def add_player(code, name), do: call(code, {:add_player, name})
   def remove_player(code, name), do: call(code, {:remove_player, name})
+  def roll(code, name), do: call(code, {:roll, name})
   def start_game(code), do: call(code, {:start_game})
   def mark(code, name, color, num), do: call(code, {:mark, name, color, num})
   def pass(code, name), do: call(code, {:pass, name})
@@ -60,7 +61,6 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  @impl true
   def handle_call({:remove_player, name}, _from, %State{code: code, game: game} = state) do
     case Game.remove_player(game, name) do
       %Game{} = game ->
@@ -72,14 +72,12 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  @impl true
   def handle_call({:start_game}, _from, %State{code: code, game: game} = state) do
     game = Game.start(game)
     broadcast(code, game, :game_started)
     {:reply, {:ok, game}, %{state | game: game}}
   end
 
-  @impl true
   def handle_call({:mark, name, color, num}, _from, %State{code: code, game: game} = state) do
     case Game.mark(game, name, color, num) do
       {:ok, game} ->
@@ -91,7 +89,6 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  @impl true
   def handle_call({:pass, name}, _from, %State{code: code, game: game} = state) do
     case Game.pass(game, name) do
       {:ok, game} ->
@@ -103,9 +100,19 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  @impl true
   def handle_call({:get_game}, _from, %State{game: game} = state) do
     {:reply, game, state}
+  end
+
+  def handle_call({:roll, name}, _from, %State{code: code, game: game} = state) do
+    case Game.roll(game, name) do
+      {:ok, game} ->
+        broadcast(code, game, :roll, name)
+        {:reply, {:ok, game}, %{state | game: game}}
+
+      {:error, msg} ->
+        {:reply, {:error, msg}, state}
+    end
   end
 
   @impl true

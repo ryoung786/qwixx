@@ -49,6 +49,12 @@ defmodule Qwixx.Game do
     |> advance()
   end
 
+  def roll(%Game{turn_order: [name | _], status: :white} = game, name) do
+    {:ok, add_event(game, :roll, %{player: name, dice: game.dice})}
+  end
+
+  def roll(_game, _name), do: {:error, :not_players_turn}
+
   def mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- Validation.validate_mark(game, player_name, color, num),
          scorecard = game.players[player_name],

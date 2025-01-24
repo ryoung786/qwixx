@@ -21,9 +21,19 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
-import qwixx from "./qwixx";
+import * as QwixxUI from "./qwixx/ui";
 
-window.qwixx = qwixx;
+window.QwixxUI = QwixxUI;
+
+let Hooks = {};
+Hooks.RelayHook = {
+  mounted() {
+    relay = this;
+    document.addEventListener("relay-event", (e) =>
+      relay.pushEvent(e.detail.event, e.detail.payload),
+    );
+  },
+};
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -31,6 +41,7 @@ let csrfToken = document
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
+  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits
@@ -54,7 +65,19 @@ window.addEventListener("phx:js-exec", ({ detail }) => {
   });
 });
 
+window.addEventListener("phx:init", (e) => {
+  console.log("app.js init listener", e);
+  QwixxUI.initGame(e.detail);
+});
+
 window.addEventListener("phx:game-events", (e) => {
   console.log("app.js event listener", e);
-  qwixx.UI.handle_event(e);
+  QwixxUI.handleEvent(e);
 });
+
+window.dispatchToLV = function (event, payload) {
+  let relay_event = new CustomEvent("relay-event", {
+    detail: { event: event, payload: payload },
+  });
+  document.dispatchEvent(relay_event);
+};

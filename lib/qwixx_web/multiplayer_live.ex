@@ -7,9 +7,9 @@ defmodule QwixxWeb.MultiplayerLive do
   alias Qwixx.GameServer
 
   @impl true
-  def handle_params(%{"code" => gs}, _uri, socket) do
-    socket = assign(socket, gs: gs, player_name: "A")
-    {:noreply, socket}
+  def mount(%{"code" => gs}, %{"name" => player_name}, socket) do
+    if connected?(socket), do: Phoenix.PubSub.subscribe(Qwixx.PubSub, "game:#{gs}")
+    {:ok, socket |> assign(gs: gs, player_name: player_name) |> push_event("init", socket.assigns.game)}
   end
 
   @impl true
@@ -27,7 +27,6 @@ defmodule QwixxWeb.MultiplayerLive do
     {:noreply, socket}
   end
 
-  @impl true
   def handle_event("pass", %{"name" => player_name}, socket) do
     gs = socket.assigns.gs
 
@@ -37,6 +36,18 @@ defmodule QwixxWeb.MultiplayerLive do
         {:error, err} -> put_flash(socket, :error, err)
       end
 
+    {:noreply, socket}
+  end
+
+  def handle_event("start-game", _params, socket) do
+    if socket.assigns.game.status == :awaiting_start,
+      do: GameServer.start_game(socket.assigns.gs)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("roll", _params, socket) do
+    GameServer.roll(socket.assigns.gs, socket.assigns.player_name)
     {:noreply, socket}
   end
 
