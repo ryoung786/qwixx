@@ -8,7 +8,7 @@ defmodule Qwixx.Game do
   @derive Jason.Encoder
   defstruct players: %{},
             turn_order: [],
-            # game status: [:awaiting_start, :white, :colors, :game_over]
+            # game status: [:awaiting_start, :white, :colors, :awaiting_roll, :game_over]
             status: :awaiting_start,
             dice: %Dice{},
             locked_colors: [],
@@ -49,12 +49,6 @@ defmodule Qwixx.Game do
     |> advance()
   end
 
-  def roll(%Game{turn_order: [name | _], status: :white} = game, name) do
-    {:ok, add_event(game, :roll, %{player: name, dice: game.dice})}
-  end
-
-  def roll(_game, _name), do: {:error, :not_players_turn}
-
   def mark(%Game{} = game, player_name, color, num) do
     with {:ok, game} <- Validation.validate_mark(game, player_name, color, num),
          scorecard = game.players[player_name],
@@ -62,7 +56,7 @@ defmodule Qwixx.Game do
       game = put_in(game.players[player_name], scorecard)
       game = put_in(game.turn_actions[player_name], {color, num})
       game = add_event(game, :mark, %{player: player_name, color: color, num: num})
-      {:ok, maybe_advance(game)}
+      maybe_advance(game)
     end
   end
 
@@ -72,7 +66,7 @@ defmodule Qwixx.Game do
         game.status == :white ->
           game = put_in(game.turn_actions[player_name], :pass)
           game = add_event(game, :pass, player_name)
-          {:ok, maybe_advance(game)}
+          maybe_advance(game)
 
         game.turn_actions[player_name] == :pass ->
           take_pass_penalty(game, player_name)
@@ -88,7 +82,7 @@ defmodule Qwixx.Game do
       {:ok, scorecard} ->
         game = put_in(game.players[player_name], scorecard)
         game = add_event(game, :pass_with_penalty, player_name)
-        {:ok, maybe_advance(game)}
+        maybe_advance(game)
 
       {:error, msg} ->
         {:error, msg}
@@ -130,18 +124,22 @@ defmodule Qwixx.Game do
         add_event(%{game | status: :colors}, :status_changed, :colors)
 
       true ->
-        next_turn(game)
+        add_event(%{game | status: :awaiting_roll}, :status_changed, :colors)
     end
   end
 
-  defp next_turn(%{turn_order: [a | rest]} = game) do
+  def roll(%{turn_order: [name | rest], status: :awaiting_roll} = game, name) do
+    dice = Map.drop(Dice.roll(), game.locked_colors)
+
     game
-    |> Map.put(:dice, Map.drop(Dice.roll(), game.locked_colors))
+    |> Map.put(:dice, dice)
     |> Map.put(:status, :white)
-    |> Map.put(:turn_order, rest ++ [a])
+    |> Map.put(:turn_order, rest ++ [name])
     |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
-    |> add_event(:status_changed, :white)
+    |> add_event(:roll, %{player: name, dice: dice})
   end
+
+  def roll(_game, _name), do: {:error, :not_players_turn_to_roll}
 
   defp add_event(%Game{} = game, event_name, event_data) do
     %{game | event_history: [{event_name, event_data} | game.event_history]}

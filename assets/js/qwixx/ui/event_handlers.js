@@ -25,20 +25,18 @@ export function pass_with_penalty(player_name, _game, _new_game) {
   if (player_name == active_player) {
     query = `.scorecard[data-player='${active_player}'] .pass_block[data-marked='0']`;
     add_tpl(query, "tpl-pass");
+    document.querySelector(query).setAttribute("data-marked", 1);
   }
 }
 
 export function roll(data, _game, _new_game) {
   Dice.roll(data.dice);
+  Dice.highlightWhite();
 }
 
 export function status_changed(new_status, _game, _new_game) {
   // if (game.status == "awaiting_start") return;
-
-  if (new_status == "white") {
-    // Dice.roll(new_game.dice);
-    Dice.highlightWhite();
-  } else if (new_status == "colors") {
+  if (new_status == "colors") {
     Dice.highlightColors();
   }
 }

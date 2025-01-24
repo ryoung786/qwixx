@@ -80,7 +80,7 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:mark, name, color, num}, _from, %State{code: code, game: game} = state) do
     case Game.mark(game, name, color, num) do
-      {:ok, game} ->
+      %Game{} = game ->
         broadcast(code, game, :mark, %Msg.Mark{player_name: name, color: color, number: num})
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -91,7 +91,7 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:pass, name}, _from, %State{code: code, game: game} = state) do
     case Game.pass(game, name) do
-      {:ok, game} ->
+      %Game{} = game ->
         broadcast(code, game, :pass, name)
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -106,7 +106,7 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:roll, name}, _from, %State{code: code, game: game} = state) do
     case Game.roll(game, name) do
-      {:ok, game} ->
+      %Game{} = game ->
         broadcast(code, game, :roll, name)
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -115,7 +115,6 @@ defmodule Qwixx.GameServer do
     end
   end
 
-  @impl true
   def handle_call(catchall, _from, %State{game: game} = state) do
     IO.inspect(catchall, label: "[catchall] ")
     {:reply, game, state}
