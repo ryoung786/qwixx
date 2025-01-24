@@ -103,9 +103,14 @@ defmodule Qwixx.GameServer do
   end
 
   def handle_call({:roll, name}, _from, %State{code: code, game: game} = state) do
-    game = Game.roll(game, name)
-    broadcast(code, game, :roll, name)
-    {:reply, {:ok, game}, %{state | game: game}}
+    case Game.roll(game, name) do
+      {:ok, game} ->
+        broadcast(code, game, :roll, name)
+        {:reply, {:ok, game}, %{state | game: game}}
+
+      {:error, msg} ->
+        {:reply, {:error, msg}, state}
+    end
   end
 
   def handle_call(catchall, _from, %State{game: game} = state) do

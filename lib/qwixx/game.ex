@@ -131,18 +131,21 @@ defmodule Qwixx.Game do
     end
   end
 
-  def roll(%{turn_order: [name | rest], status: :awaiting_roll} = game, name) do
-    dice = Map.drop(Dice.roll(), game.locked_colors)
+  def roll(%{turn_order: [active_player | rest]} = game, name) do
+    if game.status == :awaiting_roll && active_player == name do
+      dice = Map.drop(Dice.roll(), game.locked_colors)
 
-    game
-    |> Map.put(:dice, dice)
-    |> Map.put(:turn_order, rest ++ [name])
-    |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
-    |> add_event(:roll, %{player: name, dice: dice})
-    |> Map.put(:status, :white)
+      {:ok,
+       game
+       |> Map.put(:dice, dice)
+       |> Map.put(:turn_order, rest ++ [name])
+       |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
+       |> add_event(:roll, %{player: name, dice: dice})
+       |> Map.put(:status, :white)}
+    else
+      {:error, :not_players_turn_to_roll}
+    end
   end
-
-  def roll(_game, _name), do: {:error, :not_players_turn_to_roll}
 
   defp add_event(%Game{} = game, event_name, event_data) do
     %{game | event_history: [{event_name, event_data} | game.event_history]}

@@ -1,18 +1,15 @@
 import { animate } from "motion";
 import Game from "./game";
 import * as handlers from "./ui/event_handlers";
-import * as Dice from "./ui/dice";
 
 let event_index = 0;
 let game = new Game();
 
 export function initGame(g) {
-  game = g;
+  game = Game.createFromObj(g);
 }
 
 export function handleEvent(event) {
-  if (!event.detail.status) return handleUIEvent(event);
-
   const new_game = Game.createFromObj(event.detail);
   console.log("handling event. game:", new_game);
   console.log("handling event. index:", event_index);

@@ -1,8 +1,5 @@
 import Scorecard from "./scorecard";
 
-const pass_limit = 4;
-const locked_color_limit = 2;
-
 export default class Game {
   players = {};
   turn_order = [];
