@@ -5,10 +5,14 @@
   </div>
   <h2 class="text-2xl font-semibold text-yellow-500">{@title}</h2>
   <p class="mt-2 text-gray-300">{@subtitle}</p>
-  <a
-    href={@link}
+  <button
     class="mt-4 inline-block rounded bg-yellow-500 px-4 py-2 font-semibold text-blue-900 hover:bg-yellow-400"
+    onclick={
+      # ~s|return QwixxUI.pageTransition("#{@link}")|
+      ""
+    }
+    phx-click={show_modal("new-game-modal")}
   >
     {@link_text}
-  </a>
+  </button>
 </div>

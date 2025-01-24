@@ -6,7 +6,7 @@
     :green -> {12..2//-1, "bg-green-600", "bg-green-100", "text-green-600"}
   end %>
 
-<div class={["grid grid-cols-12 gap-1 rounded p-2", bg_color]}>
+<div class={["grid grid-cols-12 gap-1 rounded p-2", bg_color]} data-color={@color}>
   <div
     :for={n <- range}
     class={[
@@ -14,6 +14,7 @@
       fg_color
     ]}
     phx-click={JS.push("mark", value: %{name: @player_name, color: @color, num: n})}
+    data-num={n}
   >
     <span class={["text-3xl", txt_color]}>{n}</span>
     <span :if={n in @row} class="absolute font-cbyg text-5xl font-bold text-black">X</span>

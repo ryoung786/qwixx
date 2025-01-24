@@ -43,3 +43,12 @@
     <div class="h-screen w-10 bg-black"></div>
   </div>
 </div>
+
+<.modal id="new-game-modal" show={@show_modal?}>
+  <.simple_form for={@form} phx-submit="new-game">
+    <.input field={@form[:name]} label="Name" />
+    <:actions>
+      <.core_button>Play</.core_button>
+    </:actions>
+  </.simple_form>
+</.modal>

@@ -15,10 +15,10 @@ defmodule QwixxWeb.DemoLive do
   @impl true
   def render(%{live_action: :game} = assigns) do
     ~H"""
-    <.dice dice={@game.dice} highlight_white?={@game.status == :white} />
+    <.dice dice={@game.dice} highlight={@game.status} />
     <br />
     <div class="relative rounded bg-gray-200 p-2">
-      <.scorecard scorecard={@game.players["A"].scorecard} player_name="A" />
+      <.scorecard scorecard={@game.players["A"]} player_name="A" />
       <.icon
         :if={@game.turn_order |> List.first() == "A"}
         name="hero-arrow-right"
@@ -27,13 +27,14 @@ defmodule QwixxWeb.DemoLive do
     </div>
     <br />
     <div class="relative rounded bg-gray-200 p-2">
-      <.scorecard scorecard={@game.players["B"].scorecard} player_name="B" />
+      <.scorecard scorecard={@game.players["B"]} player_name="B" />
       <.icon
         :if={@game.turn_order |> List.first() == "B"}
         name="hero-arrow-right"
         class="absolute top-1/2 -left-8 bg-red-500"
       />
     </div>
+    <.templates />
     """
   end
 
@@ -52,6 +53,7 @@ defmodule QwixxWeb.DemoLive do
   @impl true
   def handle_event("new-game", _, socket) do
     gs = GameServer.new_game_server()
+    Phoenix.PubSub.subscribe(Qwixx.PubSub, "game:#{gs}")
     GameServer.add_player(gs, "A")
     GameServer.add_player(gs, "B")
     GameServer.start_game(gs)
@@ -66,7 +68,7 @@ defmodule QwixxWeb.DemoLive do
 
     socket =
       case GameServer.mark(gs, name, color, num) do
-        {:ok, game} -> assign(socket, game: game)
+        {:ok, _game} -> socket
         {:error, err} -> put_flash(socket, :error, err)
       end
 
@@ -79,10 +81,15 @@ defmodule QwixxWeb.DemoLive do
 
     socket =
       case GameServer.pass(gs, player_name) do
-        {:ok, game} -> assign(socket, game: game)
+        {:ok, _game} -> socket
         {:error, err} -> put_flash(socket, :error, err)
       end
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(%Qwixx.PubSub.Msg{} = msg, socket) do
+    {:noreply, push_event(socket, "game-events", msg.game)}
   end
 end

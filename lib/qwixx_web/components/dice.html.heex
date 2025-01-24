@@ -1,12 +1,19 @@
-<div class="flex gap-6">
-  <div class={["flex gap-1", @highlight_white? && "border-b-2 border-pink-400"]}>
+<div id="dice" class="flex gap-6 justify-center relative">
+  <div
+    class={["flex gap-1", @highlight == :white && "border-b-2 border-pink-400"]}
+    data-dice="white"
+  >
     <% {w1, w2} = @dice.white %>
-    <.dice_icon n={w1} /><.dice_icon n={w2} />
+    <.dice_icon id="w1" n={w1} /><.dice_icon id="w2" n={w2} />
   </div>
-  <div class={["flex gap-1", !@highlight_white? && "border-b-2 border-pink-400"]}>
-    <.dice_icon :if={Map.get(@dice, :red)} color={:red} n={@dice.red} />
-    <.dice_icon :if={Map.get(@dice, :yellow)} color={:yellow} n={@dice.yellow} />
-    <.dice_icon :if={Map.get(@dice, :green)} color={:green} n={@dice.green} />
-    <.dice_icon :if={Map.get(@dice, :blue)} color={:blue} n={@dice.blue} />
+  <div
+    class={["flex gap-1", @highlight == :colors && "border-b-2 border-pink-400"]}
+    data-dice="colors"
+  >
+    <.dice_icon :if={Map.get(@dice, :red)} id="red" color={:red} n={@dice.red} />
+    <.dice_icon :if={Map.get(@dice, :yellow)} id="yellow" color={:yellow} n={@dice.yellow} />
+    <.dice_icon :if={Map.get(@dice, :green)} id="green" color={:green} n={@dice.green} />
+    <.dice_icon :if={Map.get(@dice, :blue)} id="blue" color={:blue} n={@dice.blue} />
   </div>
 </div>
+<.button onclick="QwixxUI.roll()">Roll</.button>
