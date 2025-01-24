@@ -18,6 +18,9 @@ defmodule Qwixx.Game do
   @pass_limit 4
   @locked_color_limit 2
 
+  def add_player!(game, name), do: game |> add_player(name) |> elem(1)
+  def remove_player!(game, name), do: game |> remove_player(name) |> elem(1)
+
   def add_player(%Game{} = game, name) do
     if name in Map.keys(game.players) do
       {:error, :player_name_taken}
@@ -25,7 +28,7 @@ defmodule Qwixx.Game do
       players = Map.put(game.players, name, %Scorecard{})
       added_to_end = game.turn_order ++ [name]
       game = %{game | players: players, turn_order: added_to_end}
-      add_event(game, :player_added, name)
+      {:ok, add_event(game, :player_added, name)}
     end
   end
 
@@ -34,7 +37,7 @@ defmodule Qwixx.Game do
       players = Map.delete(game.players, name)
       removed = List.delete(game.turn_order, name)
       game = %{game | players: players, turn_order: removed}
-      add_event(game, :player_removed, name)
+      {:ok, add_event(game, :player_removed, name)}
     else
       {:error, :player_not_in_game}
     end
@@ -42,7 +45,7 @@ defmodule Qwixx.Game do
 
   def start(%Game{players: players}) when map_size(players) > 0 do
     players
-    |> Enum.reduce(%Game{}, fn {name, _}, game -> add_player(game, name) end)
+    |> Enum.reduce(%Game{}, fn {name, _}, game -> add_player!(game, name) end)
     |> Map.put(:status, :awaiting_start)
     |> Map.put(:turn_order, players |> Map.keys() |> Enum.shuffle())
     |> add_event(:game_started, nil)
@@ -56,7 +59,7 @@ defmodule Qwixx.Game do
       game = put_in(game.players[player_name], scorecard)
       game = put_in(game.turn_actions[player_name], {color, num})
       game = add_event(game, :mark, %{player: player_name, color: color, num: num})
-      maybe_advance(game)
+      {:ok, maybe_advance(game)}
     end
   end
 
@@ -66,10 +69,10 @@ defmodule Qwixx.Game do
         game.status == :white ->
           game = put_in(game.turn_actions[player_name], :pass)
           game = add_event(game, :pass, player_name)
-          maybe_advance(game)
+          {:ok, maybe_advance(game)}
 
         game.turn_actions[player_name] == :pass ->
-          take_pass_penalty(game, player_name)
+          {:ok, take_pass_penalty(game, player_name)}
 
         "pass on colored dice, but marked the white dice so it's ok" ->
           {:ok, maybe_advance(game)}
@@ -124,7 +127,7 @@ defmodule Qwixx.Game do
         add_event(%{game | status: :colors}, :status_changed, :colors)
 
       true ->
-        add_event(%{game | status: :awaiting_roll}, :status_changed, :colors)
+        add_event(%{game | status: :awaiting_roll}, :status_changed, :awaiting_roll)
     end
   end
 
@@ -133,10 +136,10 @@ defmodule Qwixx.Game do
 
     game
     |> Map.put(:dice, dice)
-    |> Map.put(:status, :white)
     |> Map.put(:turn_order, rest ++ [name])
     |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
     |> add_event(:roll, %{player: name, dice: dice})
+    |> Map.put(:status, :white)
   end
 
   def roll(_game, _name), do: {:error, :not_players_turn_to_roll}

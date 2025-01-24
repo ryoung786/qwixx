@@ -50,20 +50,18 @@ defmodule Qwixx.GameServer do
   @impl true
   def handle_call({:add_player, name}, _from, %State{code: code, game: game} = state) do
     case Game.add_player(game, name) do
-      %Game{} = game ->
+      {:ok, game} ->
         broadcast(code, game, :player_added, name)
-        IO.inspect(name, label: "[player added] ")
         {:reply, {:ok, game.players}, %{state | game: game}}
 
       {:error, msg} ->
-        IO.inspect(msg, label: "[error] ")
         {:reply, {:error, msg}, state}
     end
   end
 
   def handle_call({:remove_player, name}, _from, %State{code: code, game: game} = state) do
     case Game.remove_player(game, name) do
-      %Game{} = game ->
+      {:ok, game} ->
         broadcast(code, game, :player_removed, name)
         {:reply, {:ok, game.players}, %{state | game: game}}
 
@@ -80,7 +78,7 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:mark, name, color, num}, _from, %State{code: code, game: game} = state) do
     case Game.mark(game, name, color, num) do
-      %Game{} = game ->
+      {:ok, game} ->
         broadcast(code, game, :mark, %Msg.Mark{player_name: name, color: color, number: num})
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -91,7 +89,7 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:pass, name}, _from, %State{code: code, game: game} = state) do
     case Game.pass(game, name) do
-      %Game{} = game ->
+      {:ok, game} ->
         broadcast(code, game, :pass, name)
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -105,14 +103,9 @@ defmodule Qwixx.GameServer do
   end
 
   def handle_call({:roll, name}, _from, %State{code: code, game: game} = state) do
-    case Game.roll(game, name) do
-      %Game{} = game ->
-        broadcast(code, game, :roll, name)
-        {:reply, {:ok, game}, %{state | game: game}}
-
-      {:error, msg} ->
-        {:reply, {:error, msg}, state}
-    end
+    game = Game.roll(game, name)
+    broadcast(code, game, :roll, name)
+    {:reply, {:ok, game}, %{state | game: game}}
   end
 
   def handle_call(catchall, _from, %State{game: game} = state) do
@@ -135,8 +128,6 @@ defmodule Qwixx.GameServer do
   end
 
   defp broadcast(code, game, event, data \\ nil) do
-    IO.inspect({event, data}, label: "[xxx] broadcasting")
-
     Phoenix.PubSub.broadcast(Qwixx.PubSub, "game:#{code}", %Msg{
       event: event,
       data: data,

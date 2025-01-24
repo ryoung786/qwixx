@@ -11,22 +11,26 @@ export function player_removed(name, _game, _new_game) {
   console.log("processed player_removed", name);
 }
 
-export function mark(data, _game, _new_game) {
+export function mark(data, _game, new_game) {
   query = `.scorecard[data-player='${data.player}'] [data-color='${data.color}'] [data-num='${data.num}']`;
   add_tpl(query, "tpl-mark");
+  updateScore(data.player, new_game.players[data.player].score.total);
 }
 
 export function pass(player_name, _game, _new_game) {
   console.log("processed pass", player_name);
 }
 
-export function pass_with_penalty(player_name, _game, _new_game) {
+export function pass_with_penalty(player_name, _game, new_game) {
   const active_player = activePlayer();
+
+  // mark one of the pass section boxes
   if (player_name == active_player) {
     query = `.scorecard[data-player='${active_player}'] .pass_block[data-marked='0']`;
     add_tpl(query, "tpl-pass");
     document.querySelector(query).setAttribute("data-marked", 1);
   }
+  updateScore(player_name, new_game.players[player_name].score.total);
 }
 
 export function roll(data, _game, _new_game) {
@@ -52,4 +56,9 @@ function activePlayer() {
   return document
     .querySelector("[data-active-player]")
     .getAttribute("data-active-player");
+}
+
+function updateScore(player_name, new_score) {
+  query = `.scorecard[data-player='${player_name}'] .points`;
+  document.querySelector(query).innerText = new_score;
 }

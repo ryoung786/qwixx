@@ -9,22 +9,29 @@ defmodule Qwixx.Scorecard do
   @pass_limit 4
 
   @derive Jason.Encoder
-  defstruct red: [], yellow: [], blue: [], green: [], pass_count: 0
+  defstruct red: [], yellow: [], blue: [], green: [], pass_count: 0, score: 0
 
   def mark(%Scorecard{} = scorecard, color, num) do
     row = Map.get(scorecard, color)
+    scorecard = Map.put(scorecard, color, [num | row])
+    scorecard = %{scorecard | score: score(scorecard)}
 
     cond do
       num in row -> {:error, :already_marked}
       color in ~w/red yellow/a && num < Enum.max(row, fn -> -1 end) -> {:error, :left_to_right}
       color in ~w/blue green/a && num > Enum.min(row, fn -> 99 end) -> {:error, :left_to_right}
       {color, num} in @locks && Enum.count(row) < 5 -> {:error, :lock_min}
-      true -> {:ok, Map.put(scorecard, color, [num | row])}
+      true -> {:ok, scorecard}
     end
   end
 
   def pass(%Scorecard{pass_count: num}) when num > @pass_limit, do: {:error, :at_pass_limit}
-  def pass(%Scorecard{pass_count: num} = scorecard), do: {:ok, %{scorecard | pass_count: num + 1}}
+
+  def pass(%Scorecard{pass_count: num} = scorecard) do
+    scorecard = %{scorecard | pass_count: num + 1}
+    scorecard = %{scorecard | score: score(scorecard)}
+    {:ok, scorecard}
+  end
 
   def score(%Scorecard{} = scorecard) do
     row_scores = scorecard |> Map.take(@colors) |> Enum.map(&score_row/1)
