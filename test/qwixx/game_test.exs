@@ -8,22 +8,24 @@ defmodule Qwixx.GameTest do
     %{
       game:
         %Game{}
-        |> Game.add_player("a")
-        |> Game.add_player("b")
+        |> add_player!("a")
+        |> add_player!("b")
         |> Game.start()
     }
   end
+
+  defp add_player!(game, name), do: game |> Game.add_player(name) |> elem(1)
 
   describe "new game" do
     test "add and remove players" do
       game =
         %Game{}
-        |> Game.add_player("a")
-        |> Game.add_player("b")
+        |> add_player!("a")
+        |> add_player!("b")
 
       assert Enum.count(game.players) == 2
 
-      game = Game.remove_player(game, "b")
+      assert {:ok, game} = Game.remove_player(game, "b")
       assert Enum.count(game.players) == 1
     end
   end
@@ -33,6 +35,7 @@ defmodule Qwixx.GameTest do
       player = active_player_name(game)
       other_player = if player == "a", do: "b", else: "a"
 
+      assert {:ok, game} = Game.roll(game, player)
       assert {:ok, game} = Game.pass(game, player)
       assert {:ok, game} = Game.pass(game, other_player)
       assert {:error, :not_active_player} = Game.pass(game, other_player)
@@ -44,12 +47,14 @@ defmodule Qwixx.GameTest do
 
   describe "mark" do
     test "both can mark white", %{game: game} do
+      assert {:ok, game} = Game.roll(game, active_player_name(game))
       game = put_in(game.dice.white, {5, 4})
       assert {:ok, game} = Game.mark(game, "a", :red, 9)
       assert {:ok, _game} = Game.mark(game, "b", :blue, 9)
     end
 
     test "advances to colors", %{game: game} do
+      assert {:ok, game} = Game.roll(game, active_player_name(game))
       game = put_in(game.dice.white, {5, 4})
       {:ok, game} = Game.mark(game, "a", :red, 9)
       {:ok, game} = Game.mark(game, "b", :blue, 9)
@@ -59,11 +64,12 @@ defmodule Qwixx.GameTest do
     end
 
     test "changes turn after colors", %{game: game} do
+      player = active_player_name(game)
+      assert {:ok, game} = Game.roll(game, player)
       game = put_in(game.dice.white, {5, 4})
       {:ok, game} = Game.mark(game, "a", :red, 9)
       {:ok, game} = Game.mark(game, "b", :blue, 9)
 
-      player = active_player_name(game)
       other_player = if player == "a", do: "b", else: "a"
       c = game.dice.green
 
@@ -71,7 +77,7 @@ defmodule Qwixx.GameTest do
 
       {:ok, game} = Game.mark(game, player, :green, 5 + c)
 
-      assert game.status == :white
+      assert game.status == :awaiting_roll
       assert %{^player => %{total: 2}, ^other_player => %{total: 1}} = scores(game)
     end
   end
@@ -80,6 +86,7 @@ defmodule Qwixx.GameTest do
     test "4 passes", %{game: game} do
       active_name = active_player_name(game)
       other_player = if active_name == "a", do: "b", else: "a"
+      assert {:ok, game} = Game.roll(game, active_name)
 
       # take 3 pass penalties
       card = game.players[active_name]
@@ -102,6 +109,7 @@ defmodule Qwixx.GameTest do
     test "2 locks by same player", %{game: game} do
       active_name = active_player_name(game)
       other_player = if active_name == "a", do: "b", else: "a"
+      assert {:ok, game} = Game.roll(game, active_name)
 
       # set dice to state we can get 2 12s
       game = %{game | dice: %{white: {6, 6}, yellow: 6}}
@@ -118,6 +126,7 @@ defmodule Qwixx.GameTest do
     test "2 total locks", %{game: game} do
       active_name = active_player_name(game)
       other_name = if active_name == "a", do: "b", else: "a"
+      assert {:ok, game} = Game.roll(game, active_name)
 
       # set dice to state we can get 2 12s
       game = %{game | dice: %{white: {6, 6}, red: 6}}
@@ -137,15 +146,15 @@ defmodule Qwixx.GameTest do
 
   describe "dice get rolled" do
     test "on new turn", %{game: game} do
+      assert {:ok, game} = Game.roll(game, active_player_name(game))
       # known bad values so we know they will change on roll
       game = put_in(game.dice.red, 99)
       {:ok, game} = Game.pass(game, "a")
       {:ok, game} = Game.pass(game, "b")
+      {:ok, game} = Game.pass(game, active_player_name(game))
 
-      player = active_player_name(game)
-      {:ok, game} = Game.pass(game, player)
-
-      assert game.status == :white
+      assert game.status == :awaiting_roll
+      assert {:ok, game} = Game.roll(game, active_player_name(game))
       assert game.dice.red in 1..6
     end
   end

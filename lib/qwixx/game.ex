@@ -99,7 +99,7 @@ defmodule Qwixx.Game do
     if everyone_has_made_choice, do: advance(game), else: game
   end
 
-  defp advance(%Game{} = game) do
+  defp advance(%Game{turn_order: [active_player | other_players]} = game) do
     locked_colors =
       Enum.reduce(game.players, MapSet.new(), fn {_name, card}, acc ->
         acc = if 12 in card.red, do: MapSet.put(acc, :red), else: acc
@@ -127,18 +127,18 @@ defmodule Qwixx.Game do
         add_event(%{game | status: :colors}, :status_changed, :colors)
 
       true ->
-        add_event(%{game | status: :awaiting_roll}, :status_changed, :awaiting_roll)
+        game = %{game | status: :awaiting_roll, turn_order: other_players ++ [active_player]}
+        add_event(game, :status_changed, :awaiting_roll)
     end
   end
 
-  def roll(%{turn_order: [active_player | rest]} = game, name) do
+  def roll(%{turn_order: [active_player | _rest]} = game, name) do
     if game.status == :awaiting_roll && active_player == name do
       dice = Map.drop(Dice.roll(), game.locked_colors)
 
       {:ok,
        game
        |> Map.put(:dice, dice)
-       |> Map.put(:turn_order, rest ++ [name])
        |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
        |> add_event(:roll, %{player: name, dice: dice})
        |> Map.put(:status, :white)}
