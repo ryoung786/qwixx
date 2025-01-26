@@ -4,6 +4,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Fredoka:wght@300..700&family=Gaegu&family=Inconsolata:wght@200..900&family=Jost:ital,wght@0,100..900;1,100..900&display=swap");
 /* This file is for your main application CSS */
 
+.qr-code > svg {
+  width: 100%;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -34,7 +38,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 224.44, 64.29%, 32.94%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -48,7 +52,7 @@
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 83% 71%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

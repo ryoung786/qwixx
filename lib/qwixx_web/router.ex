@@ -35,7 +35,8 @@ defmodule QwixxWeb.Router do
 
     live_session :default, on_mount: RequireGame do
       live "/", MultiplayerLive
-      get "/join", JoinController, :join
+      live "/join", JoinLive
+      get "/join/session", JoinController, :join
     end
   end
 

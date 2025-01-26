@@ -34,6 +34,14 @@ Hooks.RelayHook = {
     );
   },
 };
+Hooks.ValidatePlayerNameHook = {
+  mounted() {
+    const name = this.el.querySelector("input").getAttribute("value");
+    this.handleEvent("validate", (_) =>
+      this.pushEvent("validate", { name: name }),
+    );
+  },
+};
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -81,3 +89,11 @@ window.dispatchToLV = function (event, payload) {
   });
   document.dispatchEvent(relay_event);
 };
+
+window.addEventListener("phx:copy", (event) => {
+  let text = event.target.innerText; // Alternatively use an element or data tag!
+  console.log("phx copy", event);
+  navigator.clipboard.writeText(text).then(() => {
+    console.log("All done!"); // Or a nice tooltip or something.
+  });
+});

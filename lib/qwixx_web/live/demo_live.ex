@@ -2,9 +2,6 @@ defmodule QwixxWeb.DemoLive do
   @moduledoc false
   use QwixxWeb, :live_view
 
-  import QwixxWeb.Components
-  import SaladUI.Button
-
   alias Qwixx.GameServer
 
   @impl true

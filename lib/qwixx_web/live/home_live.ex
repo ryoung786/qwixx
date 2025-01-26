@@ -3,8 +3,10 @@ defmodule QwixxWeb.HomeLive do
   use QwixxWeb, :live_view
 
   alias Qwixx.GameServer
+  alias QwixxWeb.Component.Dialog
+  alias QwixxWeb.Component.Form
 
-  embed_templates "controllers/page_html/*"
+  embed_templates "home/*"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -14,11 +16,6 @@ defmodule QwixxWeb.HomeLive do
   @impl true
   def handle_event("new-game", %{"name" => name}, socket) do
     gs = GameServer.new_game_server()
-    {:noreply, redirect(socket, to: ~p"/games/#{gs}/join?name=#{name}")}
-  end
-
-  def handle_event("join-game", %{"name" => name}, socket) do
-    gs = GameServer.new_game_server()
-    {:noreply, redirect(socket, to: ~p"/games/#{gs}/join?name=#{name}")}
+    {:noreply, redirect(socket, to: ~p"/games/#{gs}/join/session?name=#{name}")}
   end
 end

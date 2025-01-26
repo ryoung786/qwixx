@@ -12,7 +12,7 @@ defmodule QwixxWeb.Plugs.RequireGame do
   def call(%Plug.Conn{params: %{"code" => code}} = conn, _opts) do
     if code == String.upcase(code) do
       case GameServer.get_game(code) do
-        nil -> conn |> Phoenix.Controller.redirect(to: ~p"/") |> Plug.Conn.halt()
+        {:error, :game_not_found} -> conn |> Phoenix.Controller.redirect(to: ~p"/") |> Plug.Conn.halt()
         game -> Plug.Conn.assign(conn, :game, game)
       end
     else
@@ -23,8 +23,8 @@ defmodule QwixxWeb.Plugs.RequireGame do
 
   def on_mount(:default, %{"code" => code} = _params, _session, socket) do
     case GameServer.get_game(code) do
-      nil -> {:halt, redirect(socket, to: ~p"/")}
-      game -> {:cont, assign(socket, game: game)}
+      {:error, :game_not_found} -> {:halt, redirect(socket, to: ~p"/")}
+      game -> {:cont, assign(socket, game: game, gs: code)}
     end
   end
 end

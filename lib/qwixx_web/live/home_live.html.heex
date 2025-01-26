@@ -1,6 +1,6 @@
 <.flash_group flash={@flash} />
 <div
-  class="min-h-[100dvh] relative overflow-hidden bg-blue-900 bg-cover bg-fixed bg-center bg-no-repeat font-landing text-white"
+  class="min-h-dvh relative overflow-hidden bg-blue-900 bg-cover bg-fixed bg-center bg-no-repeat font-landing text-white"
   style={"background-image: url('#{~p"/images/explosion.png"}');"}
 >
   <img
@@ -43,3 +43,27 @@
     <div class="h-screen w-10 bg-black"></div>
   </div>
 </div>
+
+<Dialog.dialog id="new-game-modal" show={@show_modal?} class="-skew-x-6 bg-blue-700 dark">
+  <div id="new-game-modal-content">
+    <.form for={@form} phx-submit="new-game">
+      <Form.item class="text-white">
+        <.label>Player Name:</.label>
+        <.input
+          field={@form[:name]}
+          phx-debounce="500"
+          class="bg-blue-600 text-white border-none shadow-md"
+        />
+        <Form.message field={@form[:name]} />
+      </Form.item>
+      <div class="w-full flex flex-row-reverse mt-4">
+        <.button
+          phx-disable-with="Creating game..."
+          class="text-blue-900 bg-yellow-500 hover:bg-yellow-400 focus-visible:ring-offset-2"
+        >
+          Start Game
+        </.button>
+      </div>
+    </.form>
+  </div>
+</Dialog.dialog>

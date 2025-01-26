@@ -2,9 +2,8 @@ defmodule QwixxWeb.MultiplayerLive do
   @moduledoc false
   use QwixxWeb, :live_view
 
-  import QwixxWeb.Components
-
   alias Qwixx.GameServer
+  alias QwixxWeb.Component.Dialog
 
   @impl true
   def mount(%{"code" => gs}, %{"name" => player_name}, socket) do

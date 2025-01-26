@@ -48,7 +48,8 @@ defmodule Qwixx.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:salad_ui, "~> 0.14"},
+      {:eqrcode, "~> 0.2.0"},
+      {:salad_ui, "~> 0.14", only: :dev, runtime: false},
       {:styler, "~> 1.2.1", only: [:dev, :test], runtime: false}
     ]
   end

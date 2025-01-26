@@ -54,6 +54,8 @@ defmodule QwixxWeb do
       use Phoenix.LiveView,
         layout: {QwixxWeb.Layouts, :app}
 
+      import QwixxWeb.Components
+
       unquote(html_helpers())
     end
   end
@@ -83,8 +85,6 @@ defmodule QwixxWeb do
     quote do
       # HTML escaping functionality
       import Phoenix.HTML
-      # Core UI components
-      import QwixxWeb.CoreComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

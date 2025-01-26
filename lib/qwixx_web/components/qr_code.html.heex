@@ -1,0 +1,11 @@
+<div class={classes(["grid place-content-center qr-code", @class])}>
+  {@content
+  |> EQRCode.encode()
+  |> EQRCode.svg(
+    color: "white",
+    shape: "square",
+    background_color: :transparent,
+    viewbox: true
+  )
+  |> Phoenix.HTML.raw()}
+</div>

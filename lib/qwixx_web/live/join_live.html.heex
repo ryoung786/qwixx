@@ -1,0 +1,46 @@
+<.flash_group flash={@flash} />
+<div
+  class="dark min-h-[100dvh] relative overflow-hidden bg-blue-900 bg-cover bg-fixed bg-center bg-no-repeat font-landing grid place-items-center p-6"
+  style={"background-image: url('#{~p"/images/explosion.png"}');"}
+>
+  <div class="w-full max-w-sm mx-auto z-10 relative rounded-lg -skew-x-6 shadow-lg">
+    <.form
+      id="join-form"
+      phx-hook="ValidatePlayerNameHook"
+      for={@form}
+      phx-submit="submit"
+      phx-change="validate"
+      class="bg-blue-700 p-6 rounded-lg shadow-lg"
+    >
+      <Form.item class="text-white">
+        <.label>Player Name:</.label>
+        <.input
+          field={@form[:name]}
+          phx-debounce="500"
+          class="bg-blue-600 text-white border-none shadow-md"
+        />
+        <Form.message field={@form[:name]} />
+      </Form.item>
+      <div class="w-full flex flex-row-reverse mt-4">
+        <.button
+          disabled={@form.errors != []}
+          phx-disable-with="Joining..."
+          class="text-blue-900 bg-yellow-500 hover:bg-yellow-400 focus-visible:ring-offset-2"
+        >
+          Join Game
+        </.button>
+      </div>
+    </.form>
+  </div>
+
+  <div id="page-transition" class="absolute top-0 left-full flex">
+    <div class="h-screen w-10 bg-yellow-500"></div>
+    <div class="w-screen h-screen bg-black"></div>
+    <div class="h-screen w-10 bg-black"></div>
+  </div>
+  <img
+    src={~p"/images/dice2.png"}
+    alt="Dice Rolling"
+    class="absolute top-0 left-1/2 max-w-screen-md"
+  />
+</div>
