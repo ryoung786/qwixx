@@ -1,13 +1,10 @@
 <div class="dark bg-background min-h-dvh">
   <div class="flex flex-row gap-10">
-    <nav id="player-list" class="flex flex-col justify-center gap-8 min-w-24">
-      <div
-        :for={{name, _card} <- @game.players}
-        data-player-name={name}
-        class="bg-blue-700 text-yellow-400 rounded-r-md p-2 hover:bg-blue-600"
-      >
-        {name}
-      </div>
+    <nav class="flex flex-col justify-center gap-8 min-w-24">
+      <QwixxWeb.Components.player_list
+        players={@game.turn_order}
+        active={@game.turn_order |> List.first()}
+      />
       <div id="add-player-btn">
         <button
           class="rounded-3xl bg-blue-700 text-yellow-400 hover:bg-blue-600 grid place-content-center p-2"
@@ -37,16 +34,11 @@
         <h1 class="relative text-2xl text-yellow-500 font-landing font-bold mb-2">
           Invite a friend
         </h1>
-        <div class="flex">
-          <span id="invite-url" class="text-lg bg-slate-600 rounded-l-lg p-2">
+        <div class="flex items-center bg-slate-600 rounded-l-lg p-2 gap-2">
+          <span id="invite-url" class="text-lg">
             {url(~p"/games/#{@gs}/join")}
           </span>
-          <button
-            phx-click={JS.dispatch("phx:copy", to: "#invite-url")}
-            class="rounded-r-lg p-2 bg-slate-800 hover:bg-slate-900"
-          >
-            <.icon name="hero-clipboard-document" class="w-5 h-5" />
-          </button>
+          <QwixxWeb.Component.CopyToClipboard.button id="c2c-invite-url" target="#invite-url" />
         </div>
       </div>
       <.qr_code
@@ -56,5 +48,3 @@
     </div>
   </Dialog.dialog>
 </div>
-
-<.templates />

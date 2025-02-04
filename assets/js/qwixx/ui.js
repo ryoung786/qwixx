@@ -7,6 +7,7 @@ let game = new Game();
 
 export function initGame(g) {
   game = Game.createFromObj(g);
+  event_index = game.event_history.length;
 }
 
 export function handleEvent(event) {

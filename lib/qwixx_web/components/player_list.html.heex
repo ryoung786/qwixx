@@ -1,0 +1,15 @@
+<div
+  id="player-list"
+  class="flex flex-col gap-1 text-primary-foreground"
+  phx-hook="PlayerListHook"
+>
+  <div
+    :for={name <- @players}
+    data-player-name={name}
+    class={["flex group", name != @active && "inactive", name == @active && "active"]}
+  >
+    <div class="transition bg-blue-700 w-[70%] p-2 group-[.active]:text-yellow-400">{name}</div>
+    <div class="transition rounded-r-lg bg-blue-700 w-[30%] origin-left group-[.inactive]:scale-x-0">
+    </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<.story id="player-list-story">
+  <:title>Player List</:title>
+  <:description>
+    Displays the list of players on the left hand side in turn order. The active player is highlighted.  Transitions smoothly when a player is added or removed.
+  </:description>
+  <:usage>
+    <p>Here is how you use the thing</p>
+  </:usage>
+
+  <div class="w-96 mb-4">
+    <QwixxWeb.Components.player_list
+      players={["Aaaaa", "Bbbbb", "Cccccc", "Dddddd"]}
+      active="Bbbbb"
+    />
+  </div>
+  <.button onclick="addPlayer()">Add Player</.button>
+  <.button onclick="">Remove Player</.button>
+  <.button onclick="nextTurn()">Next turn</.button>
+
+  <script type="text/javascript" defer>
+    let counter = 1;
+    function names() {
+      let names = [];
+      let nodes = document.querySelectorAll("[data-player-name]");
+      nodes.forEach((el) => names.push(el.getAttribute("data-player-name")));
+      return names;
+    }
+    function addPlayer() {
+      const name = `Player${counter}`;
+      let event = new CustomEvent("js:player-added", {
+        detail: { name: name, turn_order: [...names(), name] },
+      });
+      document.dispatchEvent(event);
+      counter++;
+    }
+
+    function nextTurn() {
+      let names = [];
+      let nodes = document.querySelectorAll("[data-player-name]");
+      nodes.forEach((el) => names.push(el.getAttribute("data-player-name")));
+      let name = names[Math.floor((Math.random()*names.length))];
+
+      let event = new CustomEvent("js:set-active-player", { detail: { name: name } });
+      document.dispatchEvent(event);
+    }
+
+    function nextTurn2() {
+      let names = [];
+      let nodes = document.querySelectorAll("[data-player-name]");
+      nodes.forEach((el) => names.push(el.getAttribute("data-player-name")));
+
+      let active_name = names[Math.floor((Math.random()*names.length))];
+
+      nodes.forEach((el) => {
+        el.classList.add("inactive");
+        if (el.getAttribute("data-player-name") == active_name) { el.classList.remove("inactive"); }
+      });
+    }
+  </script>
+</.story>

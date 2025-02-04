@@ -58,6 +58,7 @@ defmodule QwixxWeb.Router do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: QwixxWeb.Telemetry
+      live "/playground", QwixxWeb.PlaygroundLive
     end
   end
 end

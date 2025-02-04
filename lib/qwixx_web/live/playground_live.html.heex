@@ -1,0 +1,45 @@
+<Sidebar.provider class="font-sans">
+  <Sidebar.sidebar id="main-sidebar">
+    <Sidebar.header>Qwixx Design Playground</Sidebar.header>
+    <Sidebar.content>
+      <Sidebar.group :for={group <- @data.nav_main}>
+        <Sidebar.group_label>{group.title}</Sidebar.group_label>
+        <Sidebar.group_content>
+          <Sidebar.menu>
+            <Sidebar.menu_item :for={item <- group.items}>
+              <Sidebar.menu_button is_active={item[:is_active]}>
+                <a href={item.url}>{item.title}</a>
+              </Sidebar.menu_button>
+            </Sidebar.menu_item>
+          </Sidebar.menu>
+        </Sidebar.group_content>
+      </Sidebar.group>
+    </Sidebar.content>
+    <Sidebar.rail />
+  </Sidebar.sidebar>
+  <Sidebar.inset>
+    <header class="flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
+      <div class="flex h-full shrink-0 items-center gap-2">
+        <Sidebar.trigger target="main-sidebar" class="-ml-1">
+          <.icon name="lucide-panel-left" class="w-4 h-4" />
+        </Sidebar.trigger>
+        <Separator.separator orientation="vertical" class="mr-2 h-8" />
+      </div>
+      <button phx-click={JS.toggle_class("dark", to: "html")} class="float-right">
+        <.icon name="lucide-moon" class="w-5 h-5" />
+      </button>
+    </header>
+    <div class="flex flex-1 flex-col gap-4 p-4">
+      <Stories.copy_to_clipboard />
+
+      <Stories.player_list />
+
+      <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+        <div class="aspect-video rounded-xl bg-muted/50"></div>
+        <div class="aspect-video rounded-xl bg-muted/50"></div>
+        <div class="aspect-video rounded-xl bg-muted/50"></div>
+      </div>
+      <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min"></div>
+    </div>
+  </Sidebar.inset>
+</Sidebar.provider>
