@@ -40,10 +40,9 @@ config :qwixx,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.4.17",
+  version: "4.0.3",
   qwixx: [
     args: ~w(
-      --config=tailwind.config.js
       --input=css/app.css
       --output=../priv/static/assets/app.css
     ),

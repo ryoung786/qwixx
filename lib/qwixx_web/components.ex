@@ -38,6 +38,10 @@ defmodule QwixxWeb.Components do
   attr :class, :string, default: nil
 
   def dice_icon(assigns) do
+    # write each explicitly so tailwind JIT picks it up
+    # lucide-dice-1 lucide-dice-2 lucide-dice-3
+    # lucide-dice-4 lucide-dice-5 lucide-dice-6
+
     {light, dark} =
       case Map.get(assigns, :color) do
         :red -> {"bg-red-100", "bg-red-600"}
