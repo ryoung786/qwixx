@@ -1,29 +1,16 @@
-import { animate } from "motion";
+import * as Animations from "../animations";
 
 export function roll(new_dice) {
   let dice_el = document.getElementById("dice");
-  const template = document.getElementById("tpl-roll");
-  const clone = template.content.cloneNode(true);
-  dice_el.appendChild(clone);
-  let anim = document.getElementById("rolling-animation");
-  const sequence = [
-    [anim, { opacity: 1 }],
-    [anim, { opacity: 1 }, { duration: 2.0 }],
-    [anim, { opacity: 0 }],
-  ];
 
-  setTimeout(() => {
-    toggleDice(dice_el, "#w1 span", new_dice?.white[0]);
-    toggleDice(dice_el, "#w2 span", new_dice?.white[1]);
-    toggleDice(dice_el, "#red span", new_dice?.red);
-    toggleDice(dice_el, "#yellow span", new_dice?.yellow);
-    toggleDice(dice_el, "#green span", new_dice?.green);
-    toggleDice(dice_el, "#blue span", new_dice?.blue);
-  }, 1000);
+  toggleDice(dice_el, "#w1 span", new_dice?.white[0]);
+  toggleDice(dice_el, "#w2 span", new_dice?.white[1]);
+  toggleDice(dice_el, "#red span", new_dice?.red);
+  toggleDice(dice_el, "#yellow span", new_dice?.yellow);
+  toggleDice(dice_el, "#green span", new_dice?.green);
+  toggleDice(dice_el, "#blue span", new_dice?.blue);
 
-  animate(sequence).then(() => {
-    dice_el.removeChild(anim);
-  });
+  Animations.rollDice();
 }
 
 function toggleDice(el, query, n) {

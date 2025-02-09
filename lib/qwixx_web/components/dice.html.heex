@@ -1,4 +1,4 @@
-<div id="dice" class="flex gap-6 justify-center relative">
+<div id="dice" class="flex gap-6 justify-center relative overflow-x-hidden">
   <div
     class={["flex gap-1", @highlight == :white && "border-b-2 border-pink-400"]}
     data-dice="white"
@@ -15,5 +15,11 @@
     <.dice_icon :if={Map.get(@dice, :green)} id="green" color={:green} n={@dice.green} />
     <.dice_icon :if={Map.get(@dice, :blue)} id="blue" color={:blue} n={@dice.blue} />
   </div>
+
+  <button
+    onclick="QwixxUI.roll()"
+    class="absolute right-0 h-full cursor-pointer bg-background text-chart-5"
+  >
+    <.icon name="lucide-dices h-full w-12" />
+  </button>
 </div>
-<.button onclick="QwixxUI.roll()">Roll</.button>

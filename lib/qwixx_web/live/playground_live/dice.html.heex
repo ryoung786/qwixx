@@ -1,0 +1,21 @@
+<.story id="dice-story">
+  <:title>Dice</:title>
+  <:description>
+    Displayling and rolling dice
+  </:description>
+  <:usage>
+    <p>Here is how you use the thing</p>
+  </:usage>
+
+  <div class="max-w-lg mb-4">
+    <QwixxWeb.Components.dice
+      highlight={:white}
+      dice={%{white: {3, 2}, red: 1, yellow: 2, green: 3, blue: 4}}
+    />
+  </div>
+  <.button onclick="QwixxAnimations.rollDice()">Roll</.button>
+
+  <script type="text/javascript" defer>
+    QwixxAnimations.rollDice();
+  </script>
+</.story>

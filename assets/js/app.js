@@ -22,28 +22,11 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 import * as QwixxUI from "./qwixx/ui";
+import * as QwixxAnimations from "./qwixx/animations";
 
 window.QwixxUI = QwixxUI;
+window.QwixxAnimations = QwixxAnimations;
 import Hooks from "./hooks";
-
-console.log(Hooks);
-// let Hooks = {};
-// Hooks.RelayHook = {
-//   mounted() {
-//     relay = this;
-//     document.addEventListener("relay-event", (e) =>
-//       relay.pushEvent(e.detail.event, e.detail.payload),
-//     );
-//   },
-// };
-// Hooks.ValidatePlayerNameHook = {
-//   mounted() {
-//     const name = this.el.querySelector("input").getAttribute("value");
-//     this.handleEvent("validate", (_) =>
-//       this.pushEvent("validate", { name: name }),
-//     );
-//   },
-// };
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -84,13 +67,6 @@ window.addEventListener("phx:game-events", (e) => {
   console.log("app.js event listener", e);
   QwixxUI.handleEvent(e);
 });
-
-// window.dispatchToLV = function (event, payload) {
-//   let relay_event = new CustomEvent("relay-event", {
-//     detail: { event: event, payload: payload },
-//   });
-//   document.dispatchEvent(relay_event);
-// };
 
 window.addEventListener("phx:copy", (event) => {
   let text = event.target.innerText; // Alternatively use an element or data tag!
