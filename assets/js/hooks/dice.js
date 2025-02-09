@@ -32,9 +32,7 @@ export default {
       this.roll(e.detail.dice);
     });
 
-    let btn = this.el.querySelector("button");
-    console.log(btn);
-    btn.addEventListener("click", (ev) => {
+    this.el.querySelector("button").addEventListener("click", (ev) => {
       ev.preventDefault();
       window.dispatchToLV("roll", null);
     });
@@ -43,6 +41,7 @@ export default {
   hideDice() {
     let dice_icons = this.el.querySelectorAll("#dice [data-dice-icon]");
     animate(dice_icons, { opacity: 0, y: "1rem" }, { duration: 0.1 });
+    this.highlightDice("none");
   },
 
   roll(new_dice) {
@@ -80,8 +79,11 @@ export default {
     if (group == "colors") {
       white.classList.remove("border-b-2", "border-pink-400");
       colors.classList.add("border-b-2", "border-pink-400");
-    } else {
+    } else if (group == "white") {
       white.classList.add("border-b-2", "border-pink-400");
+      colors.classList.remove("border-b-2", "border-pink-400");
+    } else {
+      white.classList.remove("border-b-2", "border-pink-400");
       colors.classList.remove("border-b-2", "border-pink-400");
     }
   },

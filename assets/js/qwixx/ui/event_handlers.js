@@ -35,7 +35,6 @@ export function pass_with_penalty(player_name, _game, new_game) {
 
 export function roll(data, _game, _new_game) {
   sendEvent("js:roll", { dice: data.dice });
-  sendEvent("js:highlight-dice", { dice: "white" });
 }
 
 export function status_changed(new_status, _game, new_game) {

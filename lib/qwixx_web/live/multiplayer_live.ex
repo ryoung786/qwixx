@@ -40,8 +40,6 @@ defmodule QwixxWeb.MultiplayerLive do
   end
 
   def handle_event("roll", _params, socket) do
-    IO.inspect(socket.assigns.game.status, label: "[xxx] sdflkj")
-
     if socket.assigns.game.status == :awaiting_start,
       do: GameServer.start_game(socket.assigns.gs),
       else: GameServer.roll(socket.assigns.gs, socket.assigns.player_name)
