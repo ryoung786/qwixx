@@ -50,7 +50,7 @@ defmodule Qwixx.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:eqrcode, "~> 0.2.0"},
-      {:salad_ui, "~> 0.14", only: :dev, runtime: false},
+      {:salad_ui, "~> 0.14"},
       {:styler, "~> 1.2.1", only: [:dev, :test], runtime: false}
     ]
   end
@@ -72,7 +72,7 @@ defmodule Qwixx.MixProject do
         "esbuild qwixx --minify",
         "phx.digest"
       ],
-      format: ["format", "cmd --cd assets npx prettier --color -w ."],
+      format: ["format", "cmd --cd assets npx prettier --color -l -w ."],
       "format.check": ["format --check-formatted", "cmd --cd assets npx prettier -c ."]
     ]
   end
