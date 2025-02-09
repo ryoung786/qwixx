@@ -3,6 +3,7 @@ defmodule QwixxWeb.MultiplayerLive do
   use QwixxWeb, :live_view
 
   alias Qwixx.GameServer
+  alias Qwixx.PubSub.Msg
   alias QwixxWeb.Component.Dialog
 
   @impl true
@@ -38,20 +39,23 @@ defmodule QwixxWeb.MultiplayerLive do
     {:noreply, socket}
   end
 
-  def handle_event("start-game", _params, socket) do
-    if socket.assigns.game.status == :awaiting_start,
-      do: GameServer.start_game(socket.assigns.gs)
-
-    {:noreply, socket}
-  end
-
   def handle_event("roll", _params, socket) do
-    GameServer.roll(socket.assigns.gs, socket.assigns.player_name)
+    IO.inspect(socket.assigns.game.status, label: "[xxx] sdflkj")
+
+    if socket.assigns.game.status == :awaiting_start,
+      do: GameServer.start_game(socket.assigns.gs),
+      else: GameServer.roll(socket.assigns.gs, socket.assigns.player_name)
+
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info(%Qwixx.PubSub.Msg{} = msg, socket) do
+  def handle_info(%Msg{event: :game_started} = msg, socket) do
+    socket = assign(socket, game: msg.game)
+    {:noreply, push_event(socket, "game-events", msg.game)}
+  end
+
+  def handle_info(%Msg{} = msg, socket) do
     {:noreply, push_event(socket, "game-events", msg.game)}
   end
 end

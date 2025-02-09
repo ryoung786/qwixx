@@ -2,21 +2,16 @@ import { animate } from "motion";
 
 export default {
   mounted() {
-    self = this;
-
-    console.log("abc");
     document.addEventListener("js:player-added", (e) => {
-      console.log("foo");
-      self.addPlayer(e.detail.name, e.detail.turn_order);
+      this.addPlayer(e.detail.name, e.detail.turn_order);
     });
 
     document.addEventListener("js:set-active-player", (e) =>
-      self.setActivePlayer(e.detail.name),
+      this.setActivePlayer(e.detail.name),
     );
   },
 
   addPlayer(_name, turn_order) {
-    console.log("what");
     const template = document.getElementById("tpl-sidebar-player");
 
     animate(this.el, { opacity: 0, x: "-1rem" }).then(() => {

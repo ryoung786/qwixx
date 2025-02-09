@@ -41,8 +41,3 @@ export function pageTransition(path) {
 
   return false;
 }
-
-export function roll() {
-  if (game.status == "awaiting_start") window.dispatchToLV("start-game", null);
-  window.dispatchToLV("roll", null);
-}

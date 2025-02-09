@@ -1,16 +1,8 @@
-import * as Dice from "./dice";
-
 export function game_started(_data, _game, _new_game) {
   console.log("processed game_started");
 }
 export function player_added(name, _game, new_game) {
-  // PlayerListHook adds it in
-
-  let event = new CustomEvent("js:player-added", {
-    detail: { name: name, turn_order: new_game.turn_order },
-  });
-  console.log("dispatching padd event", event);
-  document.dispatchEvent(event);
+  sendEvent("js:player-added", { name: name, turn_order: new_game.turn_order });
 }
 
 export function player_removed(name, _game, _new_game) {
@@ -42,21 +34,22 @@ export function pass_with_penalty(player_name, _game, new_game) {
 }
 
 export function roll(data, _game, _new_game) {
-  Dice.roll(data.dice);
-  Dice.highlightWhite();
+  sendEvent("js:roll", { dice: data.dice });
+  sendEvent("js:highlight-dice", { dice: "white" });
 }
 
 export function status_changed(new_status, _game, new_game) {
-  // if (game.status == "awaiting_start") return;
   if (new_status == "colors") {
-    Dice.highlightColors();
+    sendEvent("js:highlight-dice", "colors");
   }
   if (new_status == "awaiting_roll") {
-    let event = new CustomEvent("js:set-active-player", {
-      detail: { name: new_game.turn_order[0] },
-    });
-    document.dispatchEvent(event);
+    sendEvent("js:set-active-player", { name: new_game.turn_order[0] });
   }
+}
+
+function sendEvent(name, detail) {
+  let event = new CustomEvent(name, { detail: detail });
+  document.dispatchEvent(event);
 }
 
 function add_tpl(parent_query, tpl_id) {

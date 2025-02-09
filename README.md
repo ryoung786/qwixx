@@ -16,3 +16,8 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - Docs: https://hexdocs.pm/phoenix
 - Forum: https://elixirforum.com/c/phoenix-forum
 - Source: https://github.com/phoenixframework/phoenix
+
+
+# TODO next
+- hide dice when turn changes (everyone), animate opacity to 0
+- for player who's turn it is, bounce the roll button

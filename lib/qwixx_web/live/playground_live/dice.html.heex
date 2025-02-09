@@ -10,9 +10,19 @@
       dice={%{white: {3, 2}, red: 1, yellow: 2, green: 3, blue: 4}}
     />
   </div>
-  <.button onclick="QwixxAnimations.rollDice()">Roll</.button>
+  <.button onclick="roll()">Roll</.button>
 
   <script type="text/javascript" defer>
-    QwixxAnimations.rollDice();
+    function roll() {
+      let event = new CustomEvent("js:roll", {
+        detail: {
+          dice: {
+            white: [3, 4],
+            red: 1, yellow: 5, green: 2, blue: 6
+          }
+        },
+      });
+      document.dispatchEvent(event);
+    }
   </script>
 </.story>
