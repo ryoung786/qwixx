@@ -2,6 +2,7 @@ defmodule QwixxWeb.PlaygroundLive do
   @moduledoc false
   use QwixxWeb, :live_view
 
+  alias Phoenix.LiveView.JS
   alias QwixxWeb.Component.Separator
   alias QwixxWeb.Component.Sidebar
   alias QwixxWeb.PlaygroundLive.Stories

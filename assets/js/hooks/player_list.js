@@ -6,7 +6,7 @@ export default {
       this.addPlayer(e.detail.name, e.detail.turn_order);
     });
 
-    document.addEventListener("js:set-active-player", (e) =>
+    document.addEventListener("js:set-player-turn", (e) =>
       this.setActivePlayer(e.detail.name),
     );
   },

@@ -24,13 +24,12 @@ function animateRoll(dice_el) {
 
 export default {
   mounted() {
-    document.addEventListener("js:set-active-player", (_e) => this.hideDice());
+    document.addEventListener("js:set-player-turn", (_e) => this.hideDice());
+    document.addEventListener("js:roll", (e) => this.roll(e.detail.dice));
+
     document.addEventListener("js:highlight-dice", (e) =>
       this.highlightDice(e.detail),
     );
-    document.addEventListener("js:roll", (e) => {
-      this.roll(e.detail.dice);
-    });
 
     this.el.querySelector("button").addEventListener("click", (ev) => {
       ev.preventDefault();
@@ -41,7 +40,7 @@ export default {
   hideDice() {
     let dice_icons = this.el.querySelectorAll("#dice [data-dice-icon]");
     animate(dice_icons, { opacity: 0, y: "1rem" }, { duration: 0.1 });
-    this.highlightDice("none");
+    this.highlightDice(null);
   },
 
   roll(new_dice) {

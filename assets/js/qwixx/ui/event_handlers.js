@@ -42,7 +42,7 @@ export function status_changed(new_status, _game, new_game) {
     sendEvent("js:highlight-dice", "colors");
   }
   if (new_status == "awaiting_roll") {
-    sendEvent("js:set-active-player", { name: new_game.turn_order[0] });
+    sendEvent("js:set-player-turn", { name: new_game.turn_order[0] });
   }
 }
 
