@@ -10,9 +10,9 @@
       dice={%{white: {3, 2}, red: 1, yellow: 2, green: 3, blue: 4}}
     />
   </div>
-  <.button onclick="QwixxAnimations.rollDice()">Roll</.button>
+  <.button phx-click={JS.dispatch("js:roll", detail: %{dice: Qwixx.Dice.roll()})}>Roll</.button>
 
-  <script type="text/javascript" defer>
-    QwixxAnimations.rollDice();
-  </script>
+  <.button phx-click={JS.dispatch("js:set-player-turn", detail: %{name: "a"})}>
+    Active turn
+  </.button>
 </.story>

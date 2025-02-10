@@ -22,10 +22,8 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 import * as QwixxUI from "./qwixx/ui";
-import * as QwixxAnimations from "./qwixx/animations";
 
 window.QwixxUI = QwixxUI;
-window.QwixxAnimations = QwixxAnimations;
 import Hooks from "./hooks";
 
 let csrfToken = document

@@ -13,6 +13,9 @@
   <.button onclick="addPlayer()">Add Player</.button>
   <.button onclick="">Remove Player</.button>
   <.button onclick="nextTurn()">Next turn</.button>
+  <.button phx-click={JS.dispatch("js:turn-taken", detail: %{player_name: "Aaaaa"})}>
+    mark
+  </.button>
 
   <script type="text/javascript" defer>
     let counter = 1;
@@ -37,7 +40,7 @@
       nodes.forEach((el) => names.push(el.getAttribute("data-player-name")));
       let name = names[Math.floor((Math.random()*names.length))];
 
-      let event = new CustomEvent("js:set-active-player", { detail: { name: name } });
+      let event = new CustomEvent("js:set-player-turn", { detail: { name: name } });
       document.dispatchEvent(event);
     }
 

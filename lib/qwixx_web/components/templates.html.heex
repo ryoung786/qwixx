@@ -22,5 +22,12 @@
     <div class="transition bg-blue-700 w-[70%] p-2 group-[.active]:text-yellow-400"></div>
     <div class="transition rounded-r-lg bg-blue-700 w-[30%] origin-left group-[.inactive]:scale-x-0">
     </div>
+    <div class="transition grid place-items-center w-8 rounded-r-lg bg-blue-700 group-[.inactive]:-translate-x-[5rem]">
+      <.icon name="lucide-clock" class="w-5 h-5 absolute opacity-0 transition" />
+      <.icon
+        name="lucide-circle-check-big"
+        class="w-5 h-5 absolute text-emerald-300 opacity-0 transition"
+      />
+    </div>
   </div>
 </template>

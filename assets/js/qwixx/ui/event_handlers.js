@@ -1,20 +1,12 @@
-import * as Dice from "./dice";
-
 export function game_started(_data, _game, _new_game) {
   console.log("processed game_started");
 }
 export function player_added(name, _game, new_game) {
-  // PlayerListHook adds it in
-
-  let event = new CustomEvent("js:player-added", {
-    detail: { name: name, turn_order: new_game.turn_order },
-  });
-  console.log("dispatching padd event", event);
-  document.dispatchEvent(event);
+  sendEvent("js:player-added", { name: name, turn_order: new_game.turn_order });
 }
 
 export function player_removed(name, _game, _new_game) {
-  console.log("processed player_removed", name);
+  sendEvent("js:player-removed", { name: name });
 }
 
 export function mark(data, _game, new_game) {
@@ -23,10 +15,13 @@ export function mark(data, _game, new_game) {
     add_tpl(query, "tpl-mark");
     updateScore(data.player, new_game.players[data.player].score.total);
   }
+
+  sendEvent("js:turn-taken", { action: "mark", player_name: data.player });
 }
 
 export function pass(player_name, _game, _new_game) {
   console.log("processed pass", player_name);
+  sendEvent("js:turn-taken", { action: "pass", player_name: player_name });
 }
 
 export function pass_with_penalty(player_name, _game, new_game) {
@@ -42,21 +37,22 @@ export function pass_with_penalty(player_name, _game, new_game) {
 }
 
 export function roll(data, _game, _new_game) {
-  Dice.roll(data.dice);
-  Dice.highlightWhite();
+  sendEvent("js:roll", { dice: data.dice });
 }
 
 export function status_changed(new_status, _game, new_game) {
-  // if (game.status == "awaiting_start") return;
   if (new_status == "colors") {
-    Dice.highlightColors();
+    sendEvent("js:highlight-dice", "colors");
+    sendEvent("js:status-changed", "colors");
   }
   if (new_status == "awaiting_roll") {
-    let event = new CustomEvent("js:set-active-player", {
-      detail: { name: new_game.turn_order[0] },
-    });
-    document.dispatchEvent(event);
+    sendEvent("js:set-player-turn", { name: new_game.turn_order[0] });
   }
+}
+
+function sendEvent(name, detail) {
+  let event = new CustomEvent(name, { detail: detail });
+  document.dispatchEvent(event);
 }
 
 function add_tpl(parent_query, tpl_id) {
@@ -68,7 +64,7 @@ function add_tpl(parent_query, tpl_id) {
   }
 }
 
-function activePlayer() {
+export function activePlayer() {
   return document
     .querySelector("[data-active-player]")
     .getAttribute("data-active-player");

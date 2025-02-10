@@ -3,6 +3,7 @@ defmodule QwixxWeb.MultiplayerLive do
   use QwixxWeb, :live_view
 
   alias Qwixx.GameServer
+  alias Qwixx.PubSub.Msg
   alias QwixxWeb.Component.Dialog
 
   @impl true
@@ -38,20 +39,34 @@ defmodule QwixxWeb.MultiplayerLive do
     {:noreply, socket}
   end
 
-  def handle_event("start-game", _params, socket) do
-    if socket.assigns.game.status == :awaiting_start,
-      do: GameServer.start_game(socket.assigns.gs)
-
-    {:noreply, socket}
-  end
-
   def handle_event("roll", _params, socket) do
-    GameServer.roll(socket.assigns.gs, socket.assigns.player_name)
+    if socket.assigns.game.status == :awaiting_start,
+      do: GameServer.start_game(socket.assigns.gs),
+      else: GameServer.roll(socket.assigns.gs, socket.assigns.player_name)
+
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info(%Qwixx.PubSub.Msg{} = msg, socket) do
+  def handle_info(%Msg{event: :game_started} = msg, socket) do
+    socket = assign(socket, game: msg.game)
+    {:noreply, push_event(socket, "game-events", msg.game)}
+  end
+
+  def handle_info(%Msg{event: :player_removed, data: name} = msg, socket) do
+    # This player was removed from the game, send them back to the homepage
+    socket =
+      if name == socket.assigns.player_name do
+        socket = put_flash(socket, :error, "You've been removed from the game")
+        push_navigate(socket, to: ~p"/")
+      else
+        socket
+      end
+
+    {:noreply, push_event(socket, "game-events", msg.game)}
+  end
+
+  def handle_info(%Msg{} = msg, socket) do
     {:noreply, push_event(socket, "game-events", msg.game)}
   end
 end

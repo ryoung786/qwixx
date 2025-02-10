@@ -12,8 +12,6 @@ export function initGame(g) {
 
 export function handleEvent(event) {
   const new_game = Game.createFromObj(event.detail);
-  console.log("handling event. game:", new_game);
-  console.log("handling event. index:", event_index);
 
   new_game.event_history
     .slice(0, new_game.event_history.length - event_index)
@@ -40,9 +38,4 @@ export function pageTransition(path) {
   });
 
   return false;
-}
-
-export function roll() {
-  if (game.status == "awaiting_start") window.dispatchToLV("start-game", null);
-  window.dispatchToLV("roll", null);
 }

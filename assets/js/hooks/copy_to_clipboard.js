@@ -1,7 +1,5 @@
 import { animate } from "motion";
 
-window.animate = animate;
-
 export default {
   mounted() {
     let { target } = this.el.dataset;
