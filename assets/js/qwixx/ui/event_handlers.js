@@ -60,7 +60,7 @@ function add_tpl(parent_query, tpl_id) {
   }
 }
 
-function activePlayer() {
+export function activePlayer() {
   return document
     .querySelector("[data-active-player]")
     .getAttribute("data-active-player");

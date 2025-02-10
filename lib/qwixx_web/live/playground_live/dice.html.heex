@@ -11,4 +11,8 @@
     />
   </div>
   <.button phx-click={JS.dispatch("js:roll", detail: %{dice: Qwixx.Dice.roll()})}>Roll</.button>
+
+  <.button phx-click={JS.dispatch("js:set-player-turn", detail: %{name: "a"})}>
+    Active turn
+  </.button>
 </.story>

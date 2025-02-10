@@ -1,13 +1,36 @@
 import { stagger, animate } from "motion";
+import { activePlayer } from "../qwixx/ui/event_handlers";
+
+function animateShowRollButton(btn) {
+  animate(btn, { rotate: 0, opacity: 0, x: "1rem" }, { duration: 0 });
+  btn.classList.remove("hidden");
+  animate(btn, { opacity: 1, x: 0 }).then(() => {
+    btn.classList.add("animate-pulse");
+  });
+}
+function animateHideRollButton(btn) {
+  btn.classList.remove("hidden");
+  animate(btn, { opacity: 0, x: "1rem" }).then(() => {
+    btn.classList.add("hidden");
+  });
+}
 
 function animateRoll(dice_el) {
   let dice_icons = dice_el.querySelectorAll("#dice [data-dice-icon]");
+  let btn = dice_el.querySelector("button");
+
+  btn.classList.remove("animate-pulse");
 
   animate([
     [
+      btn,
+      { rotate: -90 },
+      { type: "spring", bounce: 0.6, visualDuration: 0.2 },
+    ],
+    [
       dice_icons,
       { opacity: 1, y: 0, x: dice_el.clientWidth / 2, rotate: 540 },
-      { duration: 0 },
+      { duration: 0, at: 0 },
     ],
     [
       dice_icons,
@@ -19,12 +42,15 @@ function animateRoll(dice_el) {
         bounce: 0.4,
       },
     ],
+    [btn, { opacity: 0, x: "1rem" }],
   ]);
 }
 
 export default {
   mounted() {
-    document.addEventListener("js:set-player-turn", (_e) => this.hideDice());
+    document.addEventListener("js:set-player-turn", (e) =>
+      this.setPlayerTurn(e.detail.name),
+    );
     document.addEventListener("js:roll", (e) => this.roll(e.detail.dice));
 
     document.addEventListener("js:highlight-dice", (e) =>
@@ -37,10 +63,15 @@ export default {
     });
   },
 
-  hideDice() {
+  setPlayerTurn(name) {
     let dice_icons = this.el.querySelectorAll("#dice [data-dice-icon]");
     animate(dice_icons, { opacity: 0, y: "1rem" }, { duration: 0.1 });
     this.highlightDice(null);
+
+    let btn = this.el.querySelector("button");
+    name == activePlayer()
+      ? animateShowRollButton(btn)
+      : animateHideRollButton(btn);
   },
 
   roll(new_dice) {
