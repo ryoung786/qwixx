@@ -53,6 +53,19 @@ defmodule QwixxWeb.MultiplayerLive do
     {:noreply, push_event(socket, "game-events", msg.game)}
   end
 
+  def handle_info(%Msg{event: :player_removed, data: name} = msg, socket) do
+    # This player was removed from the game, send them back to the homepage
+    socket =
+      if name == socket.assigns.player_name do
+        socket = put_flash(socket, :error, "You've been removed from the game")
+        push_navigate(socket, to: ~p"/")
+      else
+        socket
+      end
+
+    {:noreply, push_event(socket, "game-events", msg.game)}
+  end
+
   def handle_info(%Msg{} = msg, socket) do
     {:noreply, push_event(socket, "game-events", msg.game)}
   end

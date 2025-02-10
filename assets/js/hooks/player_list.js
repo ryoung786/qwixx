@@ -5,6 +5,9 @@ export default {
     document.addEventListener("js:player-added", (e) => {
       this.addPlayer(e.detail.name, e.detail.turn_order);
     });
+    document.addEventListener("js:player-removed", (e) => {
+      this.removePlayer(e.detail.name);
+    });
 
     document.addEventListener("js:set-player-turn", (e) =>
       this.setPlayerTurn(e.detail.name),
@@ -36,6 +39,11 @@ export default {
       animate(this.el, { opacity: 1, x: 0 });
       this.setPlayerTurn(turn_order[0]);
     });
+  },
+
+  removePlayer(name) {
+    let el = this.el.querySelector(`[data-player-name="${name}"]`);
+    animate(el, { opacity: 0, x: "-1rem" }).then(() => el.remove());
   },
 
   setPlayerTurn(name) {

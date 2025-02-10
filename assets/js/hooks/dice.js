@@ -42,8 +42,7 @@ function animateRoll(dice_el) {
         bounce: 0.4,
       },
     ],
-    [btn, { opacity: 0, x: "1rem" }],
-  ]);
+  ]).then(() => animateHideRollButton(btn));
 }
 
 export default {

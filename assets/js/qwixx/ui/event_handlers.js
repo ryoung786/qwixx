@@ -6,7 +6,7 @@ export function player_added(name, _game, new_game) {
 }
 
 export function player_removed(name, _game, _new_game) {
-  console.log("processed player_removed", name);
+  sendEvent("js:player-removed", { name: name });
 }
 
 export function mark(data, _game, new_game) {
