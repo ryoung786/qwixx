@@ -7,8 +7,16 @@ export default {
     });
 
     document.addEventListener("js:set-player-turn", (e) =>
-      this.setActivePlayer(e.detail.name),
+      this.setPlayerTurn(e.detail.name),
     );
+
+    document.addEventListener("js:turn-taken", (e) =>
+      this.turnTaken(e.detail.player_name),
+    );
+
+    document.addEventListener("js:status-changed", (e) => {
+      e.detail == "colors" ? this.waitOnActivePlayer() : null;
+    });
   },
 
   addPlayer(_name, turn_order) {
@@ -26,11 +34,11 @@ export default {
       });
 
       animate(this.el, { opacity: 1, x: 0 });
-      this.setActivePlayer(turn_order[0]);
+      this.setPlayerTurn(turn_order[0]);
     });
   },
 
-  setActivePlayer(name) {
+  setPlayerTurn(name) {
     let player_nodes = this.el.querySelectorAll("[data-player-name]");
     player_nodes.forEach((el) => {
       el.classList.add("inactive");
@@ -39,6 +47,35 @@ export default {
         el.classList.remove("inactive");
         el.classList.add("active");
       }
+
+      togglePlayerIcons(el, "clock");
     });
   },
+
+  turnTaken(name) {
+    let el = this.el.querySelector(`[data-player-name="${name}"]`);
+    togglePlayerIcons(el, "check");
+  },
+
+  waitOnActivePlayer() {
+    let active_el = this.el.querySelector(".active[data-player-name]");
+    togglePlayerIcons(active_el, "clock");
+  },
 };
+
+function togglePlayerIcons(el, to_display) {
+  let clock = el.querySelector(".lucide-clock");
+  let check = el.querySelector(".lucide-circle-check-big");
+  const clazz = "opacity-0";
+
+  if (to_display == "clock") {
+    clock.classList.remove(clazz);
+    check.classList.add(clazz);
+  } else if (to_display == "check") {
+    clock.classList.add(clazz);
+    check.classList.remove(clazz);
+  } else {
+    clock.classList.add(clazz);
+    check.classList.add(clazz);
+  }
+}

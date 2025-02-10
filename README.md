@@ -19,4 +19,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 
 # TODO next
-- for player who's turn it is, bounce the roll button
+- game over screen

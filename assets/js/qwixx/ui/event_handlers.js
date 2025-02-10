@@ -15,10 +15,13 @@ export function mark(data, _game, new_game) {
     add_tpl(query, "tpl-mark");
     updateScore(data.player, new_game.players[data.player].score.total);
   }
+
+  sendEvent("js:turn-taken", { action: "mark", player_name: data.player });
 }
 
 export function pass(player_name, _game, _new_game) {
   console.log("processed pass", player_name);
+  sendEvent("js:turn-taken", { action: "pass", player_name: player_name });
 }
 
 export function pass_with_penalty(player_name, _game, new_game) {
@@ -40,6 +43,7 @@ export function roll(data, _game, _new_game) {
 export function status_changed(new_status, _game, new_game) {
   if (new_status == "colors") {
     sendEvent("js:highlight-dice", "colors");
+    sendEvent("js:status-changed", "colors");
   }
   if (new_status == "awaiting_roll") {
     sendEvent("js:set-player-turn", { name: new_game.turn_order[0] });

@@ -21,7 +21,7 @@ defmodule QwixxWeb.Component.CopyToClipboard do
         @class
       ]}
     >
-      <.icon name="lucide-copy-check absolute opacity-0" class="w-5 h-5" />
+      <.icon name="lucide-copy-check" class="w-5 h-5 absolute opacity-0" />
       <.icon name="lucide-copy" class="w-5 h-5" />
     </button>
     """

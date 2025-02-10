@@ -13,6 +13,9 @@
   <.button onclick="addPlayer()">Add Player</.button>
   <.button onclick="">Remove Player</.button>
   <.button onclick="nextTurn()">Next turn</.button>
+  <.button phx-click={JS.dispatch("js:turn-taken", detail: %{player_name: "Aaaaa"})}>
+    mark
+  </.button>
 
   <script type="text/javascript" defer>
     let counter = 1;
