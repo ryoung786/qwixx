@@ -3,6 +3,7 @@ import RelayHook from "./hooks/relay";
 import CopyToClipboardHook from "./hooks/copy_to_clipboard";
 import PlayerListHook from "./hooks/player_list";
 import DiceHook from "./hooks/dice";
+import DialogHook from "./hooks/dialog";
 
 export default {
   ValidatePlayerNameHook: ValidatePlayerNameHook,
@@ -10,4 +11,5 @@ export default {
   CopyToClipboardHook: CopyToClipboardHook,
   PlayerListHook: PlayerListHook,
   DiceHook: DiceHook,
+  DialogHook: DialogHook,
 };

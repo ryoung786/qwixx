@@ -167,4 +167,36 @@ defmodule QwixxWeb.Component.Dialog do
     |> JS.remove_class("overflow-hidden", to: "body")
     |> JS.pop_focus()
   end
+
+  @doc """
+  Trigger this by adding or removing a `data-open` attribute
+  """
+  def overlay(assigns) do
+    ~H"""
+    <div class="fixed inset-0 bg-black/80 hidden opacity-0" aria-hidden="true" />
+    """
+  end
+
+  def game_over(assigns) do
+    ~H"""
+    <div
+      id="game-over-dialog"
+      class="fixed inset-0 flex items-center justify-center overflow-y-auto hidden"
+      role="dialog"
+      aria-modal="true"
+      tabindex="0"
+      phx-hook="DialogHook"
+    >
+      <div data-overlay class="fixed inset-0 bg-black/80 hidden opacity-0" aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        tabindex="0"
+        class="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 bg-background p-6 shadow-lg duration-200 sm:rounded-lg"
+      >
+        <p>Hello</p>
+      </div>
+    </div>
+    """
+  end
 end
