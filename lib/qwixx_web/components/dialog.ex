@@ -177,10 +177,10 @@ defmodule QwixxWeb.Component.Dialog do
     """
   end
 
-  def game_over(assigns) do
+  def color_locked(assigns) do
     ~H"""
     <div
-      id="game-over-dialog"
+      id="color-locked-dialog"
       class="fixed inset-0 flex items-center justify-center overflow-y-auto hidden"
       role="dialog"
       aria-modal="true"
@@ -189,12 +189,16 @@ defmodule QwixxWeb.Component.Dialog do
     >
       <div data-overlay class="fixed inset-0 bg-black/80 hidden opacity-0" aria-hidden="true" />
       <div
+        data-content
         role="dialog"
         aria-modal="true"
         tabindex="0"
-        class="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 bg-background p-6 shadow-lg duration-200 sm:rounded-lg"
+        class="w-3/4 h-24 left-[50%] grid place-items-center opacity-0 -skew-x-6 bg-red-400 data-[color=blue]:bg-blue-400 data-[color=yellow]:bg-amber-300 data-[color=green]:bg-green-400 "
       >
-        <p>Hello</p>
+        <div class="flex">
+          <QwixxWeb.Components.icon name="hero-lock-closed-solid" />
+          <span data-text class="ml-4"></span>
+        </div>
       </div>
     </div>
     """
