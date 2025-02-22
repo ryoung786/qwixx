@@ -9,10 +9,18 @@ export function player_removed(name, _game, _new_game) {
   sendEvent("js:player-removed", { name: name });
 }
 
+export function color_locked(color, _game, _new_game) {
+  sendEvent("js:color-locked", { color: color });
+}
+
 export function mark(data, _game, new_game) {
   if (data.player == activePlayer()) {
     query = `.scorecard[data-player='${data.player}'] [data-color='${data.color}'] [data-num='${data.num}']`;
     add_tpl(query, "tpl-mark");
+    if (data.lock) {
+      query = `.scorecard[data-player='${data.player}'] [data-color='${data.color}'] [data-lock]`;
+      add_tpl(query, "tpl-mark");
+    }
     updateScore(data.player, new_game.players[data.player].score.total);
   }
 
@@ -47,6 +55,9 @@ export function status_changed(new_status, _game, new_game) {
   }
   if (new_status == "awaiting_roll") {
     sendEvent("js:set-player-turn", { name: new_game.turn_order[0] });
+  }
+  if (new_status == "game_over") {
+    sendEvent("js:game-over", { game: new_game });
   }
 }
 

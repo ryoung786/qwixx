@@ -19,13 +19,8 @@
     <span class={["text-3xl", txt_color]}>{n}</span>
     <span :if={n in @row} class="absolute font-cbyg text-5xl font-bold text-black">X</span>
   </div>
-  <div class={["relative flex items-center justify-center rounded-lg p-2", fg_color]}>
+  <div class={["relative flex items-center justify-center rounded-lg p-2", fg_color]} data-lock>
     <.icon name="hero-lock-closed-solid" class={txt_color} />
-    <span
-      :if={Scorecard.lock_bonus?(@color, @row)}
-      class="absolute font-cbyg text-5xl font-bold text-black"
-    >
-      X
-    </span>
+    <span :if={:lock in @row} class="absolute font-cbyg text-5xl font-bold text-black">X</span>
   </div>
 </div>
