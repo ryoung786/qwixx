@@ -58,7 +58,15 @@ defmodule Qwixx.Game do
          {:ok, scorecard} <- Scorecard.mark(scorecard, color, num) do
       game = put_in(game.players[player_name], scorecard)
       game = put_in(game.turn_actions[player_name], {color, num})
-      game = add_event(game, :mark, %{player: player_name, color: color, num: num})
+
+      game =
+        add_event(game, :mark, %{
+          player: player_name,
+          color: color,
+          num: num,
+          lock: :lock in Map.get(scorecard, color)
+        })
+
       {:ok, maybe_advance(game)}
     end
   end
@@ -101,26 +109,23 @@ defmodule Qwixx.Game do
 
   defp advance(%Game{turn_order: [active_player | other_players]} = game) do
     locked_colors =
-      Enum.reduce(game.players, MapSet.new(), fn {_name, card}, acc ->
-        acc = if 12 in card.red, do: MapSet.put(acc, :red), else: acc
-        acc = if 12 in card.yellow, do: MapSet.put(acc, :yellow), else: acc
-        acc = if 2 in card.blue, do: MapSet.put(acc, :blue), else: acc
-        acc = if 2 in card.green, do: MapSet.put(acc, :green), else: acc
-        acc
+      game.players
+      |> Enum.reduce([], fn {_name, card}, acc ->
+        acc ++ Scorecard.locked_colors(card)
       end)
+      |> Enum.uniq()
 
     # if any new colors were locked, add that to our event history
-    game =
-      case locked_colors |> MapSet.difference(MapSet.new(game.locked_colors)) |> MapSet.to_list() do
-        [] -> game
-        colors -> Enum.reduce(colors, game, &add_event(&2, :color_locked, &1))
-      end
+    new_locks = locked_colors -- game.locked_colors
+    game = if Enum.empty?(new_locks), do: game, else: Enum.reduce(new_locks, game, &add_event(&2, :color_locked, &1))
+    game = %{game | locked_colors: locked_colors}
 
-    game = %{game | locked_colors: MapSet.to_list(locked_colors)}
-    pass_limit_hit = Enum.any?(game.players, fn {_, card} -> card.pass_count >= @pass_limit end)
+    pass_limit_hit? = Enum.any?(game.players, fn {_, card} -> card.pass_count >= @pass_limit end)
+    locked_color_limit_hit? = Enum.count(game.locked_colors) >= @locked_color_limit
+    is_game_over? = pass_limit_hit? || locked_color_limit_hit?
 
     cond do
-      pass_limit_hit || Enum.count(game.locked_colors) >= @locked_color_limit ->
+      is_game_over? ->
         add_event(%{game | status: :game_over}, :status_changed, :game_over)
 
       game.status == :white ->

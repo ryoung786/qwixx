@@ -3,7 +3,7 @@ defmodule Qwixx.Scorecard do
   alias __MODULE__
 
   @colors ~w/red yellow blue green/a
-  @locks [{:red, 12}, {:yellow, 12}, {:green, 2}, {:blue, 2}]
+  @locks [red: 12, yellow: 12, blue: 2, green: 2]
   @scoring_scale [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78]
   @pass_multiplier -5
   @pass_limit 4
@@ -13,7 +13,12 @@ defmodule Qwixx.Scorecard do
 
   def mark(%Scorecard{} = scorecard, color, num) do
     row = Map.get(scorecard, color)
-    scorecard = Map.put(scorecard, color, [num | row])
+
+    scorecard =
+      if {color, num} in @locks,
+        do: Map.put(scorecard, color, [:lock, num | row]),
+        else: Map.put(scorecard, color, [num | row])
+
     scorecard = %{scorecard | score: score(scorecard)}
 
     cond do
@@ -34,20 +39,18 @@ defmodule Qwixx.Scorecard do
   end
 
   def score(%Scorecard{} = scorecard) do
-    row_scores = scorecard |> Map.take(@colors) |> Enum.map(&score_row/1)
+    row_scores = scorecard |> Map.take(@colors) |> Map.new(&score_row/1)
     pass_total = scorecard.pass_count * @pass_multiplier
-    row_total = row_scores |> Enum.map(&elem(&1, 1)) |> Enum.sum()
-    %{rows: Map.new(row_scores), pass: pass_total, total: row_total + pass_total}
+    row_total = row_scores |> Map.values() |> Enum.sum()
+    %{rows: row_scores, pass: pass_total, total: row_total + pass_total}
   end
 
-  def lock_bonus?(color, row) do
-    n = if color in ~w/red yellow/a, do: 12, else: 2
-    n in row
+  def locked_colors(%Scorecard{} = scorecard) do
+    Enum.filter(@colors, &(:lock in Map.get(scorecard, &1)))
   end
 
   defp score_row({color, row}) do
-    bonus = if lock_bonus?(color, row), do: 1, else: 0
-    {color, Enum.at(@scoring_scale, Enum.count(row) + bonus)}
+    {color, Enum.at(@scoring_scale, Enum.count(row))}
   end
 
   def rows(%Scorecard{} = scorecard), do: Map.take(scorecard, @colors)

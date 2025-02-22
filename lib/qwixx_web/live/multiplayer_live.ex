@@ -66,6 +66,10 @@ defmodule QwixxWeb.MultiplayerLive do
     {:noreply, push_event(socket, "game-events", msg.game)}
   end
 
+  def handle_info(%Msg{event: :refresh} = msg, socket) do
+    {:noreply, assign(socket, game: msg.game)}
+  end
+
   def handle_info(%Msg{} = msg, socket) do
     {:noreply, push_event(socket, "game-events", msg.game)}
   end

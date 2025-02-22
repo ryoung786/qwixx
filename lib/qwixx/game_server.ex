@@ -45,6 +45,8 @@ defmodule Qwixx.GameServer do
   def pass(code, name), do: call(code, {:pass, name})
   def get_game(code), do: call(code, {:get_game})
 
+  def set_almost_game_over(code), do: call(code, {:set_almost_game_over})
+
   ## Server
 
   @impl true
@@ -100,6 +102,12 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:get_game}, _from, %State{game: game} = state) do
     {:reply, game, state}
+  end
+
+  def handle_call({:set_almost_game_over}, _from, %State{game: game} = state) do
+    game = Qwixx.Admin.set_almost_game_over(game)
+    broadcast(state.code, game, :refresh)
+    {:reply, {:ok, game}, %{state | game: game}}
   end
 
   def handle_call({:roll, name}, _from, %State{code: code, game: game} = state) do

@@ -56,6 +56,10 @@ export default {
       this.highlightDice(e.detail),
     );
 
+    document.addEventListener("js:color-locked", (e) =>
+      this.removeDice(e.detail.color),
+    );
+
     this.el.querySelector("button").addEventListener("click", (ev) => {
       ev.preventDefault();
       window.dispatchToLV("roll", null);
@@ -91,6 +95,13 @@ export default {
     );
     this.el.querySelector(query).classList?.remove(old_class);
     this.el.querySelector(query).classList?.add(`lucide-dice-${n}`);
+  },
+
+  removeDice(color) {
+    let die = this.el.querySelector(`#dice #${color}`);
+    animate(die, { opacity: 0, y: "1rem" }, { duration: 0.1 }).then(() => {
+      die.remove();
+    });
   },
 
   highlightWhite() {
