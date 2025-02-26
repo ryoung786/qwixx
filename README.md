@@ -23,3 +23,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - smaller bg image
 - more prominent highlight of current dice
 - modal-ish UI event for turn change, locked colors, player added/removed
+- mobile layout

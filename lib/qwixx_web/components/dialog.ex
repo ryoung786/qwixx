@@ -203,4 +203,31 @@ defmodule QwixxWeb.Component.Dialog do
     </div>
     """
   end
+
+  def game_over(assigns) do
+    ~H"""
+    <div
+      id="game-over-dialog"
+      class="fixed inset-0 flex items-center justify-center overflow-y-auto hidden"
+      role="dialog"
+      aria-modal="true"
+      tabindex="0"
+      phx-hook="DialogHook"
+    >
+      <div data-overlay class="fixed inset-0 bg-black/80 hidden opacity-0" aria-hidden="true" />
+      <div
+        data-content
+        role="dialog"
+        aria-modal="true"
+        tabindex="0"
+        class="w-3/4 h-24 left-[50%] grid place-items-center opacity-0 -skew-x-6 bg-red-400 data-[color=blue]:bg-blue-400 data-[color=yellow]:bg-amber-300 data-[color=green]:bg-green-400 "
+      >
+        <div class="flex">
+          <QwixxWeb.Components.icon name="hero-lock-closed-solid" />
+          <span data-text class="ml-4"></span>
+        </div>
+      </div>
+    </div>
+    """
+  end
 end

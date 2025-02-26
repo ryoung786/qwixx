@@ -15,6 +15,16 @@ function animateHideRollButton(btn) {
   });
 }
 
+function highlightDice(el, group) {
+  white = el.querySelector(`[data-dice='white']`);
+  colors = el.querySelector(`[data-dice='colors']`);
+  white.removeAttribute("data-highlight");
+  colors.removeAttribute("data-highlight");
+
+  group == "colors" && colors.setAttribute("data-highlight", true);
+  group == "white" && white.setAttribute("data-highlight", true);
+}
+
 function animateRoll(dice_el) {
   let dice_icons = dice_el.querySelectorAll("#dice [data-dice-icon]");
   let btn = dice_el.querySelector("button");
@@ -42,7 +52,10 @@ function animateRoll(dice_el) {
         bounce: 0.4,
       },
     ],
-  ]).then(() => animateHideRollButton(btn));
+  ]).then(() => {
+    animateHideRollButton(btn);
+    highlightDice(dice_el, "white");
+  });
 }
 
 export default {
@@ -52,9 +65,9 @@ export default {
     );
     document.addEventListener("js:roll", (e) => this.roll(e.detail.dice));
 
-    document.addEventListener("js:highlight-dice", (e) =>
-      this.highlightDice(e.detail),
-    );
+    document.addEventListener("js:highlight-dice", (e) => {
+      highlightDice(this.el, e.detail);
+    });
 
     document.addEventListener("js:color-locked", (e) =>
       this.removeDice(e.detail.color),
@@ -69,7 +82,7 @@ export default {
   setPlayerTurn(name) {
     let dice_icons = this.el.querySelectorAll("#dice [data-dice-icon]");
     animate(dice_icons, { opacity: 0, y: "1rem" }, { duration: 0.1 });
-    this.highlightDice(null);
+    highlightDice(this.el, null);
 
     let btn = this.el.querySelector("button");
     name == activePlayer()
@@ -86,7 +99,6 @@ export default {
     this.toggleDice("#blue span", new_dice?.blue);
 
     animateRoll(this.el);
-    this.highlightWhite();
   },
 
   toggleDice(query, n) {
@@ -102,29 +114,5 @@ export default {
     animate(die, { opacity: 0, y: "1rem" }, { duration: 0.1 }).then(() => {
       die.remove();
     });
-  },
-
-  highlightWhite() {
-    this.highlightDice("white");
-  },
-
-  highlightColors() {
-    this.highlightDice("colors");
-  },
-
-  highlightDice(group) {
-    white = this.el.querySelector(`[data-dice='white']`);
-    colors = this.el.querySelector(`[data-dice='colors']`);
-
-    if (group == "colors") {
-      white.classList.remove("border-b-2", "border-pink-400");
-      colors.classList.add("border-b-2", "border-pink-400");
-    } else if (group == "white") {
-      white.classList.add("border-b-2", "border-pink-400");
-      colors.classList.remove("border-b-2", "border-pink-400");
-    } else {
-      white.classList.remove("border-b-2", "border-pink-400");
-      colors.classList.remove("border-b-2", "border-pink-400");
-    }
   },
 };

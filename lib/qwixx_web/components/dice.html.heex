@@ -1,15 +1,21 @@
 <div id="dice" class="flex gap-6 justify-center relative overflow-x-hidden" phx-hook="DiceHook">
   <div
-    class={["flex gap-1", @highlight == :white && "border-b-2 border-pink-400"]}
+    data-highlight={@highlight == :white}
+    class="group relative flex gap-1 p-2"
     data-dice="white"
   >
+    <div class="w-full -ml-2 h-3 rounded-sm absolute bottom-0 bg-pink-400 transition-all opacity-0 translate-y-6  ease-[cubic-bezier(1,.09,.68,1.48)] group-data-highlight:translate-y-0 group-data-highlight:opacity-100 duration-500">
+    </div>
     <% {w1, w2} = @dice.white %>
     <.dice_icon id="w1" n={w1} /><.dice_icon id="w2" n={w2} />
   </div>
   <div
-    class={["flex gap-1", @highlight == :colors && "border-b-2 border-pink-400"]}
+    data-highlight={@highlight == :colors}
+    class="relative group flex gap-1 p-2"
     data-dice="colors"
   >
+    <div class="w-full -ml-2 h-2 absolute bottom-0 bg-pink-400 transition-all opacity-0 group-data-highlight:opacity-100 ease-[cubic-bezier(1,.09,.68,1.48)] translate-y-6 group-data-highlight:translate-y-0 duration-500">
+    </div>
     <.dice_icon :if={Map.get(@dice, :red)} id="red" color={:red} n={@dice.red} />
     <.dice_icon :if={Map.get(@dice, :yellow)} id="yellow" color={:yellow} n={@dice.yellow} />
     <.dice_icon :if={Map.get(@dice, :green)} id="green" color={:green} n={@dice.green} />

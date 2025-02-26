@@ -54,8 +54,8 @@ defmodule QwixxWeb.Components do
     assigns = assign(assigns, light: light, dark: dark)
 
     ~H"""
-    <div id={@id} class={["rounded", @light]} data-dice-icon>
-      <.icon name={"lucide-dice-#{@n}"} class={"#{@class} #{@dark} h-10 w-10"} />
+    <div id={@id} class={["rounded grid place-items-center size-10", @light]} data-dice-icon>
+      <.icon name={"lucide-dice-#{@n}"} class={"#{@class} #{@dark} size-full"} />
     </div>
     """
   end
