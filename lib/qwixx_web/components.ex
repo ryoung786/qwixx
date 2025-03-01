@@ -275,4 +275,11 @@ defmodule QwixxWeb.Components do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  def dice_highlight(assigns) do
+    ~H"""
+    <div class="w-full -ml-2 h-2 absolute bottom-0 bg-pink-400 transition-all opacity-0 group-data-highlight:opacity-100 ease-in-out translate-y-6 group-data-highlight:translate-y-0 duration-500">
+    </div>
+    """
+  end
 end
