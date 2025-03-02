@@ -10,16 +10,17 @@ export function initGame(g) {
   event_index = game.event_history.length;
 }
 
-export function handleEvent(event) {
+export async function handleEvent(event) {
   const new_game = Game.createFromObj(event.detail);
 
-  new_game.event_history
+  const events = new_game.event_history
     .slice(0, new_game.event_history.length - event_index)
-    .reverse()
-    .forEach(([e, data]) => {
-      handlers[e] && handlers[e](data, game, new_game);
-      event_index++;
-    });
+    .reverse();
+
+  for (const [e, data] of events) {
+    handlers[e] && (await handlers[e](data, game, new_game));
+    event_index++;
+  }
 
   game = new_game;
 }

@@ -1,12 +1,11 @@
 defmodule Qwixx.Admin do
   @moduledoc false
 
-  alias Qwixx.Dice
   alias Qwixx.Game
   alias Qwixx.Scorecard
 
   def set_almost_game_over(%Game{} = game) do
-    dice = %Dice{red: 6, yellow: 6, blue: 1, green: 1, white: {6, 6}}
+    dice = %{red: 6, yellow: 6, blue: 1, green: 1, white: {6, 6}}
     turn_actions = game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice})
 
     players =

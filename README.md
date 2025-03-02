@@ -27,3 +27,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - end of action must animate events in sequence, not all at once
   - (two colors locked by different players during the white action, only one animation is shown)
   - requires rethinking event-driven system
+- timer for auto advance so we don't wait on absent players

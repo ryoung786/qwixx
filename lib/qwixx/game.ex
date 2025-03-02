@@ -10,7 +10,7 @@ defmodule Qwixx.Game do
             turn_order: [],
             # game status: [:awaiting_start, :white, :colors, :awaiting_roll, :game_over]
             status: :awaiting_start,
-            dice: %Dice{},
+            dice: Dice.new(),
             locked_colors: [],
             turn_actions: %{},
             event_history: []
@@ -58,14 +58,20 @@ defmodule Qwixx.Game do
          {:ok, scorecard} <- Scorecard.mark(scorecard, color, num) do
       game = put_in(game.players[player_name], scorecard)
       game = put_in(game.turn_actions[player_name], {color, num})
+      lock? = :lock in Map.get(scorecard, color)
 
       game =
         add_event(game, :mark, %{
           player: player_name,
           color: color,
           num: num,
-          lock: :lock in Map.get(scorecard, color)
+          lock: lock?
         })
+
+      game =
+        if lock?,
+          do: add_event(%{game | dice: Map.delete(game.dice, color)}, :color_locked, color),
+          else: game
 
       {:ok, maybe_advance(game)}
     end
@@ -109,16 +115,9 @@ defmodule Qwixx.Game do
 
   defp advance(%Game{turn_order: [active_player | other_players]} = game) do
     locked_colors =
-      game.players
-      |> Enum.reduce([], fn {_name, card}, acc ->
-        acc ++ Scorecard.locked_colors(card)
-      end)
-      |> Enum.uniq()
+      game.players |> Map.values() |> Enum.reduce([], fn card, acc -> acc ++ Scorecard.locked_colors(card) end)
 
-    # if any new colors were locked, add that to our event history
-    new_locks = locked_colors -- game.locked_colors
-    game = if Enum.empty?(new_locks), do: game, else: Enum.reduce(new_locks, game, &add_event(&2, :color_locked, &1))
-    game = %{game | locked_colors: locked_colors}
+    game = %{game | locked_colors: Enum.uniq(locked_colors)}
 
     pass_limit_hit? = Enum.any?(game.players, fn {_, card} -> card.pass_count >= @pass_limit end)
     locked_color_limit_hit? = Enum.count(game.locked_colors) >= @locked_color_limit
