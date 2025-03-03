@@ -22,3 +22,5 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - game over screen
 - smaller bg image
 - mobile layout
+- need better indicator that you can't pick yet when color and you didn't roll
+- larger touch targets for pass blocks
