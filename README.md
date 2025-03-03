@@ -21,10 +21,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 # TODO next
 - game over screen
 - smaller bg image
-- more prominent highlight of current dice
-- modal-ish UI event for turn change, player added/removed
 - mobile layout
-- end of action must animate events in sequence, not all at once
-  - (two colors locked by different players during the white action, only one animation is shown)
-  - requires rethinking event-driven system
-- timer for auto advance so we don't wait on absent players

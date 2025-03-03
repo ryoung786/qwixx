@@ -9,7 +9,7 @@ defmodule Qwixx.GameServer do
 
   defmodule State do
     @moduledoc false
-    defstruct code: nil, game: nil
+    defstruct code: nil, game: nil, timer: nil
   end
 
   def start_link(code), do: GenServer.start_link(__MODULE__, code, name: via_tuple(code))
@@ -74,6 +74,7 @@ defmodule Qwixx.GameServer do
 
   def handle_call({:start_game}, _from, %State{code: code, game: game} = state) do
     game = Game.start(game)
+    state = reset_timer(game, state)
     broadcast(code, game, :game_started)
     {:reply, {:ok, game}, %{state | game: game}}
   end
@@ -81,6 +82,7 @@ defmodule Qwixx.GameServer do
   def handle_call({:mark, name, color, num}, _from, %State{code: code, game: game} = state) do
     case Game.mark(game, name, color, num) do
       {:ok, game} ->
+        state = reset_timer(game, state)
         broadcast(code, game, :mark, %Msg.Mark{player_name: name, color: color, number: num})
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -92,6 +94,7 @@ defmodule Qwixx.GameServer do
   def handle_call({:pass, name}, _from, %State{code: code, game: game} = state) do
     case Game.pass(game, name) do
       {:ok, game} ->
+        state = reset_timer(game, state)
         broadcast(code, game, :pass, name)
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -113,6 +116,7 @@ defmodule Qwixx.GameServer do
   def handle_call({:roll, name}, _from, %State{code: code, game: game} = state) do
     case Game.roll(game, name) do
       {:ok, game} ->
+        state = reset_timer(game, state)
         broadcast(code, game, :roll, name)
         {:reply, {:ok, game}, %{state | game: game}}
 
@@ -124,6 +128,16 @@ defmodule Qwixx.GameServer do
   def handle_call(catchall, _from, %State{game: game} = state) do
     IO.inspect(catchall, label: "[catchall] ")
     {:reply, game, state}
+  end
+
+  @impl true
+  def handle_info(:time_expired, %State{code: code, game: game} = state) do
+    IO.inspect(state.timer, label: "[xxx] Time expired!")
+    {:ok, game} = Game.time_expired(game)
+
+    state = reset_timer(game, state)
+    broadcast(code, game, :time_expired)
+    {:noreply, %{state | game: game}}
   end
 
   ## Callbacks
@@ -157,4 +171,27 @@ defmodule Qwixx.GameServer do
   end
 
   defp via_tuple(code), do: {:via, Registry, {Qwixx.GameRegistry, code}}
+
+  defp reset_timer(game, state) do
+    {event, _} = List.first(game.event_history)
+
+    IO.inspect(event, label: "[xxx] reset_timer called w/event")
+    IO.inspect(state.timer, label: "[xxx] current timer")
+    IO.inspect(game.status, label: "[xxx] game status")
+
+    if event == :status_changed do
+      state.timer && state.timer |> Process.cancel_timer() |> IO.inspect(label: "[xxx] cancelled timer")
+
+      timer =
+        if game.timer_duration == nil,
+          do: nil,
+          else: Process.send_after(self(), :time_expired, game.timer_duration)
+
+      IO.inspect(timer, label: "[xxx] set timer")
+
+      %{state | timer: timer}
+    else
+      state
+    end
+  end
 end

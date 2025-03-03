@@ -13,10 +13,13 @@ defmodule Qwixx.Game do
             dice: Dice.new(),
             locked_colors: [],
             turn_actions: %{},
-            event_history: []
+            event_history: [],
+            timer_duration: nil
 
   @pass_limit 4
   @locked_color_limit 2
+  @duration_roll to_timeout(second: 10)
+  @duration_turn to_timeout(second: 30)
 
   def add_player!(game, name), do: game |> add_player(name) |> elem(1)
   def remove_player!(game, name), do: game |> remove_player(name) |> elem(1)
@@ -117,7 +120,7 @@ defmodule Qwixx.Game do
     locked_colors =
       game.players |> Map.values() |> Enum.reduce([], fn card, acc -> acc ++ Scorecard.locked_colors(card) end)
 
-    game = %{game | locked_colors: Enum.uniq(locked_colors)}
+    game = %{game | locked_colors: Enum.uniq(locked_colors), timer_duration: @duration_turn}
 
     pass_limit_hit? = Enum.any?(game.players, fn {_, card} -> card.pass_count >= @pass_limit end)
     locked_color_limit_hit? = Enum.count(game.locked_colors) >= @locked_color_limit
@@ -131,7 +134,8 @@ defmodule Qwixx.Game do
         add_event(%{game | status: :colors}, :status_changed, :colors)
 
       true ->
-        game = %{game | status: :awaiting_roll, turn_order: other_players ++ [active_player]}
+        game = %{game | status: :awaiting_roll, timer_duration: @duration_roll}
+        game = %{game | turn_order: other_players ++ [active_player]}
         add_event(game, :status_changed, :awaiting_roll)
     end
   end
@@ -141,11 +145,10 @@ defmodule Qwixx.Game do
       dice = Map.drop(Dice.roll(), game.locked_colors)
 
       {:ok,
-       game
-       |> Map.put(:dice, dice)
+       %{game | dice: dice, status: :white, timer_duration: @duration_turn}
        |> Map.put(:turn_actions, game.players |> Map.keys() |> Map.new(&{&1, :awaiting_choice}))
        |> add_event(:roll, %{player: name, dice: dice})
-       |> Map.put(:status, :white)}
+       |> add_event(:status_changed, :white)}
     else
       {:error, :not_players_turn_to_roll}
     end
@@ -153,5 +156,23 @@ defmodule Qwixx.Game do
 
   defp add_event(%Game{} = game, event_name, event_data) do
     %{game | event_history: [{event_name, event_data} | game.event_history]}
+  end
+
+  def time_expired(%Game{status: :awaiting_roll} = game), do: roll(game, List.first(game.turn_order))
+
+  def time_expired(%Game{status: :colors} = game), do: pass(game, List.first(game.turn_order))
+
+  def time_expired(%Game{status: :white} = game) do
+    game =
+      game.turn_actions
+      |> Enum.filter(fn {_name, action} -> action == :awaiting_choice end)
+      |> Enum.reduce(game, fn {name, _}, game ->
+        case pass(game, name) do
+          {:ok, game} -> game
+          _ -> game
+        end
+      end)
+
+    {:ok, game}
   end
 end

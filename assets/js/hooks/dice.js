@@ -102,11 +102,15 @@ export default {
   },
 
   toggleDice(query, n) {
-    old_class = Array.from(this.el.querySelector(query).classList).find((e) =>
-      e.startsWith("lucide-dice-"),
-    );
-    this.el.querySelector(query).classList?.remove(old_class);
-    this.el.querySelector(query).classList?.add(`lucide-dice-${n}`);
+    el = this.el.querySelector(query);
+
+    if (el) {
+      old_class = Array.from(el.classList).find((e) =>
+        e.startsWith("lucide-dice-"),
+      );
+      el.classList?.remove(old_class);
+      el.classList?.add(`lucide-dice-${n}`);
+    }
   },
 
   removeDice(color) {
