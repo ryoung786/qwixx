@@ -1,4 +1,4 @@
-<div class="landscape:hidden min-h-dvh grid place-items-center p-8">
+<div class="landscape:hidden min-h-dvh grid place-items-center p-8 bg-background">
   <div class="flex flex-col gap-4 text-center items-center [text-shadow:_-2px_2px_0_rgb(0_0_0_/_90%)] text-xl font-bold text-yellow-400">
     <svg
       class="size-20 text-black"
@@ -44,13 +44,9 @@
         </button>
       </div>
     </nav>
-    <main>
-      <div class="flex flex-col gap-4" data-active-player={@player_name}>
-        <.dice dice={@game.dice} highlight={@game.status} />
-        <div class="relative rounded bg-gray-200 p-2">
-          <.scorecard scorecard={@game.players[@player_name]} player_name={@player_name} />
-        </div>
-      </div>
+    <main class="flex flex-col gap-4 w-full min-h-dvh" data-active-player={@player_name}>
+      <.dice dice={@game.dice} highlight={@game.status} />
+      <.scorecard scorecard={@game.players[@player_name]} player_name={@player_name} />
     </main>
   </div>
 

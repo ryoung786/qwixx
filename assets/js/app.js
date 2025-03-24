@@ -73,3 +73,7 @@ window.addEventListener("phx:copy", (event) => {
     console.log("All done!"); // Or a nice tooltip or something.
   });
 });
+
+// window.addEventListener("click", (event) => {
+//   document.querySelector("body").requestFullscreen();
+// });

@@ -1,26 +1,33 @@
-<% {range, bg_color, fg_color, txt_color} =
+<% {range, bg_color, fg_color, txt_color, divide_color} =
   case @color do
-    :red -> {2..12, "bg-red-600", "bg-red-100", "text-red-600"}
-    :yellow -> {2..12, "bg-amber-400", "bg-amber-50", "text-amber-400"}
-    :blue -> {12..2//-1, "bg-blue-600", "bg-blue-100", "text-blue-600"}
-    :green -> {12..2//-1, "bg-green-600", "bg-green-100", "text-green-600"}
+    :red -> {2..12, "bg-red-600", "bg-red-100", "text-red-600", "divide-red-600"}
+    :yellow -> {2..12, "bg-amber-400", "bg-amber-50", "text-amber-400", "divide-amber-400"}
+    :blue -> {12..2//-1, "bg-blue-600", "bg-blue-100", "text-blue-600", "divide-blue-600"}
+    :green -> {12..2//-1, "bg-green-600", "bg-green-100", "text-green-600", "divide-green-600"}
   end %>
 
-<div class={["grid grid-cols-12 gap-1 rounded p-2", bg_color]} data-color={@color}>
+<div
+  class={["grid grid-cols-12 divide-x-1 rounded p-1 h-full", bg_color, divide_color]}
+  data-color={@color}
+>
   <div
     :for={n <- range}
     class={[
-      "relative flex cursor-pointer items-center justify-center rounded-lg px-1 py-1",
+      "relative grid place-items-center cursor-pointer",
+      "first:rounded-l",
       fg_color
     ]}
     phx-click={JS.push("mark", value: %{name: @player_name, color: @color, num: n})}
     data-num={n}
   >
-    <span class={["text-3xl", txt_color]}>{n}</span>
-    <span :if={n in @row} class="absolute font-cbyg text-5xl font-bold text-black">X</span>
+    <span class={["absolute text-[4vw]", txt_color]}>{n}</span>
+    <span :if={n in @row} class="hidden absolute font-cbyg text-5xl font-bold text-black">X</span>
   </div>
-  <div class={["relative flex items-center justify-center rounded-lg p-2", fg_color]} data-lock>
-    <.icon name="hero-lock-closed-solid" class={txt_color} />
-    <span :if={:lock in @row} class="absolute font-cbyg text-5xl font-bold text-black">X</span>
+
+  <div class={["relative grid place-items-center rounded-r", fg_color]} data-lock>
+    <.icon name="hero-lock-closed-solid" class={"absolute size-[3vw] #{txt_color}"} />
+    <span :if={:lock in @row} class="absolute font-cbyg text-5xl font-bold text-black">
+      X
+    </span>
   </div>
 </div>
