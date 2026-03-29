@@ -9,11 +9,18 @@ import Config
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.17.11",
+  version: "0.27.4",
   qwixx: [
-    args: ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    args:
+      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ],
+  admin: [
+    args:
+      ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
   ]
 
 # Configures Elixir's Logger
@@ -23,6 +30,16 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :qwixx, AdminWeb.Endpoint,
+  url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [html: QwixxWeb.ErrorHTML, json: QwixxWeb.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: Qwixx.PubSub,
+  live_view: [signing_salt: "9aAa2fMc"]
 
 # Configures the endpoint
 config :qwixx, QwixxWeb.Endpoint,
@@ -40,16 +57,23 @@ config :qwixx,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.0.3",
+  version: "4.2.2",
   qwixx: [
     args: ~w(
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
+      --input=assets/css/app.css
+      --output=priv/static/assets/app.css
     ),
 
     # Import environment specific config. This must remain at the bottom
     # of this file so it overrides the configuration defined above.
-    cd: Path.expand("../assets", __DIR__)
+    cd: Path.expand("..", __DIR__)
+  ],
+  admin: [
+    args: ~w(
+      --input=assets/css/admin.css
+      --output=priv/static/assets/css/admin.css
+    ),
+    cd: Path.expand("..", __DIR__)
   ]
 
 import_config "#{config_env()}.exs"

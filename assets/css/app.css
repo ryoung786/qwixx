@@ -1,18 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Fredoka:wght@300..700&family=Gaegu&family=Inconsolata:wght@200..900&family=Jost:ital,wght@0,100..900;1,100..900&display=swap");
 
-@import "tailwindcss" source("../..");
+@import "tailwindcss" source(none);
+@source "../css";
+@source "../js";
+@source "../../lib/qwixx_web";
 
-/* This file is for your main application CSS */
-
-.qr-code > svg {
-  width: 100%;
-}
-@variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
-@variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
-@variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
-
-@plugin "../heroicons.tailwind.plugin.js";
-@plugin "../lucide.tailwind.plugin.js";
+/* A Tailwind plugin that makes "hero-#{ICON}" classes available.
+   The heroicons installation itself is managed by your mix.exs */
+@plugin "../vendor/heroicons";
+@plugin "../vendor/lucide";
 
 @layer base {
   :root {
@@ -79,4 +75,21 @@
   --color-chart-5: var(--chart-5);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
+}
+
+/* Add variants based on LiveView classes */
+@variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+/* Make LiveView wrapper divs transparent for layout */
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
+
+/* This file is for your main application CSS */
+
+.qr-code > svg {
+  width: 100%;
 }

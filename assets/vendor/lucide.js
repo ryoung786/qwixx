@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = function ({ matchComponents, theme }) {
-  let iconsDir = path.join(__dirname, "../deps/lucide/icons");
+  let iconsDir = path.join(process.cwd(), "deps/lucide/icons");
   let values = {};
   fs.readdirSync(iconsDir).forEach((file) => {
     if (path.extname(file) != ".svg") return;

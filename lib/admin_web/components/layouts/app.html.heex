@@ -1,0 +1,33 @@
+<div class="flex">
+  <aside class="h-screen shrink-0 w-50 border-r-1 border-base-200 flex flex-col bg-base-200">
+    <nav class="mb-4">
+      <ul class="menu rounded-box w-full">
+        <li>
+          <.navlink href={~p"/"}>Home</.navlink>
+        </li>
+        <li>
+          <.navlink href={~p"/"}>Dumper</.navlink>
+        </li>
+        <li>
+          <.navlink href={~p"/dashboard"}>Live Dash</.navlink>
+        </li>
+        <li>
+          <.navlink href={~p"/"}>Oban</.navlink>
+        </li>
+        <li>
+          <.navlink href={~p"/"}>Error Tracker</.navlink>
+        </li>
+        <li>
+          <.navlink href="https://logflare.app/sources/37348">Logs</.navlink>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="flex justify-center"><.theme_toggle /></div>
+  </aside>
+  <main class="m-2 mx-4">
+    {render_slot(@inner_block)}
+  </main>
+</div>
+
+<.flash_group flash={@flash} />

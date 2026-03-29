@@ -9,7 +9,8 @@ import Config
 # before starting your production server.
 config :logger, level: :info
 
-config :qwixx, QwixxWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
-
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
+
+config :qwixx, AdminWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
+config :qwixx, QwixxWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
