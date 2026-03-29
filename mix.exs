@@ -38,12 +38,12 @@ defmodule Qwixx.MixProject do
       {:phoenix_live_view, "~> 1.0.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
+      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:tw_merge, "~> 0.1.0"},
       {:heroicons,
-       github: "tailwindlabs/heroicons", tag: "v2.1.1", sparse: "optimized", app: false, compile: false, depth: 1},
-      {:lucide, github: "lucide-icons/lucide", tag: "0.471.1", sparse: "icons", app: false, compile: false, depth: 1},
+       github: "tailwindlabs/heroicons", tag: "v2.2.0", sparse: "optimized", app: false, compile: false, depth: 1},
+      {:lucide, github: "lucide-icons/lucide", tag: "1.7.0", sparse: "icons", app: false, compile: false, depth: 1},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
@@ -51,7 +51,7 @@ defmodule Qwixx.MixProject do
       {:bandit, "~> 1.5"},
       {:eqrcode, "~> 0.2.0"},
       {:salad_ui, "~> 0.14"},
-      {:styler, "~> 1.2.1", only: [:dev, :test], runtime: false}
+      {:styler, "~> 1.11.0", only: [:dev, :test], runtime: false}
     ]
   end
 

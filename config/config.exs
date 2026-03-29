@@ -9,7 +9,7 @@ import Config
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.17.11",
+  version: "0.27.4",
   qwixx: [
     args: ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
@@ -40,16 +40,23 @@ config :qwixx,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.0.3",
+  version: "4.2.2",
   qwixx: [
     args: ~w(
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
+      --input=assets/css/app.css
+      --output=priv/static/assets/app.css
     ),
 
     # Import environment specific config. This must remain at the bottom
     # of this file so it overrides the configuration defined above.
-    cd: Path.expand("../assets", __DIR__)
+    cd: Path.expand("..", __DIR__)
+  ],
+  admin: [
+    args: ~w(
+      --input=assets/css/admin.css
+      --output=priv/static/assets/css/admin.css
+    ),
+    cd: Path.expand("..", __DIR__)
   ]
 
 import_config "#{config_env()}.exs"
