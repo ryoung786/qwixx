@@ -17,6 +17,7 @@ import Config
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
 if System.get_env("PHX_SERVER") do
+  config :qwixx, AdminWeb.Endpoint, server: true
   config :qwixx, QwixxWeb.Endpoint, server: true
 end
 
@@ -35,6 +36,17 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
+  admin_host = System.get_env("PHX_HOST_ADMIN") || "example.com"
+  admin_port = String.to_integer(System.get_env("PORT_ADMIN") || "4001")
+
+  config :qwixx, AdminWeb.Endpoint,
+    url: [host: admin_host, port: 443, scheme: "https"],
+    http: [
+      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      port: admin_port,
+      http_options: [log_protocol_errors: false]
+    ],
+    secret_key_base: secret_key_base
 
   config :qwixx, QwixxWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
@@ -44,7 +56,8 @@ if config_env() == :prod do
       # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
+      port: port,
+      http_options: [log_protocol_errors: false]
     ],
     secret_key_base: secret_key_base
 

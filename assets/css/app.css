@@ -10,24 +10,6 @@
 @plugin "../vendor/heroicons";
 @plugin "../vendor/lucide";
 
-/* Make LiveView wrapper divs transparent for layout */
-[data-phx-session],
-[data-phx-teleported-src] {
-  display: contents;
-}
-
-/* This file is for your main application CSS */
-
-.qr-code > svg {
-  width: 100%;
-}
-@variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
-@variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
-@variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
-
-@plugin "../heroicons.tailwind.plugin.js";
-@plugin "../lucide.tailwind.plugin.js";
-
 @layer base {
   :root {
     --background: oklch(43.33% 0.0919 254.12);
@@ -93,4 +75,21 @@
   --color-chart-5: var(--chart-5);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
+}
+
+/* Add variants based on LiveView classes */
+@variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+/* Make LiveView wrapper divs transparent for layout */
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
+
+/* This file is for your main application CSS */
+
+.qr-code > svg {
+  width: 100%;
 }

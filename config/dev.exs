@@ -1,5 +1,7 @@
 import Config
 
+secret_key_base = "RsMn4JMC6SIVvQ3BU/nF37WFt6DU/xlMlBwdPH6lW3DxSBss5kihHLY3b2HLxhrh"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
@@ -22,6 +24,30 @@ config :phoenix_live_view,
   # to bundle .js and .css sources.
   enable_expensive_runtime_checks: true
 
+config :qwixx, AdminWeb.Endpoint,
+  # Binding to loopback ipv4 address prevents access from other machines.
+  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
+  http: [ip: {127, 0, 0, 1}, port: 4001],
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  secret_key_base: secret_key_base,
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:admin, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:admin, ~w(--watch)]}
+  ]
+
+config :qwixx, AdminWeb.Endpoint,
+  live_reload: [
+    web_console_logger: true,
+    patterns: [
+      ~r"priv/static/(?!uploads/).*\.(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/gettext/.*\.po$",
+      ~r"lib/admin_web/router\.ex$",
+      ~r"lib/admin_web/(controllers|live|components)/.*\.(ex|heex)$"
+    ]
+  ]
+
 config :qwixx, QwixxWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
@@ -40,7 +66,7 @@ config :qwixx, QwixxWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "RsMn4JMC6SIVvQ3BU/nF37WFt6DU/xlMlBwdPH6lW3DxSBss5kihHLY3b2HLxhrh",
+  secret_key_base: secret_key_base,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:qwixx, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:qwixx, ~w(--watch)]}

@@ -17,7 +17,8 @@ defmodule Qwixx.Application do
       # Start a worker by calling: Qwixx.Worker.start_link(arg)
       # {Qwixx.Worker, arg},
       # Start to serve requests, typically the last entry
-      QwixxWeb.Endpoint
+      QwixxWeb.Endpoint,
+      AdminWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
