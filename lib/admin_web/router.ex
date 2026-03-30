@@ -12,6 +12,7 @@ defmodule AdminWeb.Router do
     plug :put_root_layout, html: {AdminWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :admin_basic_auth
   end
 
   pipeline :api do
@@ -23,7 +24,8 @@ defmodule AdminWeb.Router do
 
     live_dashboard "/dashboard",
       metrics: QwixxWeb.Telemetry
-      # additional_pages: [dumper: {Dumper.LiveDashboardPage, repo: FitCal.Repo, config_module: FitCal.DumperConfig}]
+
+    # additional_pages: [dumper: {Dumper.LiveDashboardPage, repo: FitCal.Repo, config_module: FitCal.DumperConfig}]
 
     # oban_dashboard("/oban")
 
@@ -31,6 +33,16 @@ defmodule AdminWeb.Router do
 
     scope "/", AdminWeb do
       live "/", HomeLive
+    end
+  end
+
+  defp admin_basic_auth(conn, _opts) do
+    config = Application.get_env(:qwixx, :admin_basic_auth)
+
+    if config[:enabled] do
+      Plug.BasicAuth.basic_auth(conn, username: config[:username], password: config[:password])
+    else
+      conn
     end
   end
 end

@@ -21,6 +21,8 @@ if System.get_env("PHX_SERVER") do
   config :qwixx, QwixxWeb.Endpoint, server: true
 end
 
+config :qwixx, :admin_basic_auth, enabled: false
+
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -61,7 +63,10 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  config :qwixx, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+  config :qwixx, :admin_basic_auth,
+    enabled: true,
+    username: System.fetch_env!("ADMIN_AUTH_USERNAME"),
+    password: System.fetch_env!("ADMIN_AUTH_PASSWORD")
 
   # ## SSL Support
   #
@@ -94,4 +99,5 @@ if config_env() == :prod do
   #       force_ssl: [hsts: true]
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
+  config :qwixx, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 end

@@ -91,7 +91,7 @@ defmodule Qwixx.Game do
         game.turn_actions[player_name] == :pass ->
           {:ok, take_pass_penalty(game, player_name)}
 
-        "pass on colored dice, but marked the white dice so it's ok" ->
+        true ->
           {:ok, maybe_advance(game)}
       end
     end
